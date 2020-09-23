@@ -178,7 +178,7 @@ PersistentkeepAlive = 60" >> wg0.conf
 
   echo "[Interface]
 Address = $intipaddr.$COUNT/24, $intipaddr6::$COUNT/64
-MTU = 1500
+MTU = 1420
 DNS = $ipaddr, $ipaddr6
 PrivateKey = $(<$i-privkey)
 
