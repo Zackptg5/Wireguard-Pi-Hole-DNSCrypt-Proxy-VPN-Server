@@ -165,7 +165,7 @@ PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACC
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o $inet -j MASQUERADE" > wg0.conf
 
 # Clients
-COUNT=2
+count=2
 for i in $devs; do
   wg genkey | tee $i-privkey | wg pubkey > $i-pubkey
   echo "
@@ -173,11 +173,11 @@ for i in $devs; do
 # $i
 PublicKey = $(<$i-pubkey)
 PresharedKey = $(<preshared-key)
-AllowedIPs = $intipaddr.$COUNT/32, $intipaddr6::$COUNT/128
+AllowedIPs = $intipaddr.$count/32, $intipaddr6::$count/128
 PersistentkeepAlive = 60" >> wg0.conf
 
   echo "[Interface]
-Address = $intipaddr.$COUNT/24, $intipaddr6::$COUNT/64
+Address = $intipaddr.$count/24, $intipaddr6::$count/64
 MTU = 1420
 DNS = $ipaddr, $ipaddr6
 PrivateKey = $(<$i-privkey)
@@ -193,7 +193,7 @@ PersistentKeepalive = 60" > $i.conf
   qrencode -t ansiutf8 < $i.conf
   sleep 1
   cp -f $i.conf $dir/$i.conf
-  COUNT=$((COUNT+1))
+  count=$((count+1))
 done
 
 chown -R root:root *

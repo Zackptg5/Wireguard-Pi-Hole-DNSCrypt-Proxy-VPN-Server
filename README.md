@@ -55,6 +55,12 @@ Sets up your very own VPN server with my configs
   * Follow script instructions - will require several reboots
 * Setup your lists in pi-hole
 
+## To Add More Wireguard Peers After Initial Setup
+* ssh into your server as root
+* Edit the user configurable variables in the Wireguard_After script
+* `chmod +x Wireguard_After.bash `
+* `bash Wireguard_After.bash`
+
 ## Other Notes
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
 * The unbound config (pi-hole.conf) is pretty solid I think. Only thing you may want to change is some performance related variables like num-threads. Also note that enabling `auto-trust-anchor-file` prevented unbound service from starting regardless of forwarding or lack there of on my server. 
