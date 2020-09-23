@@ -33,7 +33,7 @@ Sets up your very own VPN server with my configs
 ## Configurations:
 * Just Pi-hole - barebones, pick a dns server in the pihole gui - you need to trust your isp and selected upstream DNS server(s)
 * Pi-hole + cloudflared - use cloudflare's DOH service - if you trust cloudflare more than your server's ISP
-* Pi-hole + Unbound - increases privacy and uses dnssec - only entity you need to trust is your server's ISP
+* Pi-hole + Unbound - increases privacy and uses dnssec - only entity you need to trust is your server's ISP (note that I have it set to use cloudflare but you can remove the forward zone or change this)
 * Pi-hole + unbound + cloudflared
 * Pi-hole + dnscrypt-proxy - use whatever dns servers you want - encrypts + anonymizes requests - you don't need to trust anyone
 * Pi-hole + unbound + dnscrypt-proxy - same as above but with some local dns resolution via unbound - I don't see much point in this but it's here if you want it
