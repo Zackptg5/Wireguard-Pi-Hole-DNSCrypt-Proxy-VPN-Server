@@ -134,9 +134,11 @@ elif [ "$dpport" ]; then
   apt install -t unstable dnscrypt-proxy
   mv -f dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
   sed -i "s/\(.*\)=127..*/\1=127.0.0.1:$dpport\n\1=[::1]:$dpport/g" /lib/systemd/system/dnscrypt-proxy.socket
+  sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf # Disable pihole cache, redundant and seems to slow things down
 elif [ "$uport" ]; then
   # Use cloudflare
   sed -i "/^ *name:/a\        forward-addr: 1.1.1.1@53#cloudflare-dns.com\n        forward-addr: 1.0.0.1@53#cloudflare-dns.com" /etc/unbound/unbound.conf.d/pi-hole.conf
+  sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf # Disable pihole cache, redundant and seems to slow things down
 fi
 
 # Now we can start it since forward addresses are set
