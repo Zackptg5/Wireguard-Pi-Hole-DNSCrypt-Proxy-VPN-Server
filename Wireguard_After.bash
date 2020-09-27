@@ -19,7 +19,7 @@ umask 077
 cd /etc/wireguard
 
 echo "Adding peers to wireguard config"
-count=$((`grep -c '\[Peer\]' wg0.conf` + 1))
+count=$((`grep -c '\[Peer\]' wg0.conf` + 2))
 for i in $devs; do
   wg genkey | tee $i-privkey | wg pubkey > $i-pubkey
   echo "
