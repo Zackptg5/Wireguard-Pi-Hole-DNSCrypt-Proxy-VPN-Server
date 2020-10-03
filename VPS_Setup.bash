@@ -22,6 +22,7 @@ ipaddr="$(hostname -I | awk '{print $1}')"
 ipaddr6="$(hostname -I | awk '{print $2}')"
 
 # User Setable Variables
+pihole_skip_os_check=false
 intipaddr="192.168.1"
 intipaddr6="2607:55:55:55"
 wgport=51820
@@ -91,7 +92,7 @@ apt update -y
 echo "Setting up Pi-hole v5.0"
 echo "Select any dns server - it'll get changed by this script"
 sleep 3
-curl -sSL https://install.pi-hole.net | bash
+curl -sSL https://install.pi-hole.net | PIHOLE_SKIP_OS_CHECK=$pihole_skip_os_check bash
 sed -i "s/domain_name_servers=.*/domain_name_servers=$ipaddr $ipaddr6/" /etc/dhcpcd.conf
 echo "Set password to whatever"
 sleep 1
