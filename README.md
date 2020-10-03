@@ -7,6 +7,7 @@ Sets up your very own VPN server with my configs
 
 ## Options
 * Can change some of the variables in the beginning (keep all but devs if you're unsure):
+  * pihole_skip_os_check - set to true to skip the OS check during pihole install. Required for armbian and probably some other SBC distros
   * devs - name for each wireguard client/device conf you want to make
   * initipaddr/initipaddr6 - ipv4/6 internal address you want to use for wireguard
   * sshport - ssh port
