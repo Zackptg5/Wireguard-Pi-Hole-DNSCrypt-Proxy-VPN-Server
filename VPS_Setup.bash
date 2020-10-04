@@ -132,7 +132,11 @@ elif [ "$dpport" ]; then
   echo "Setting up dnscrypt"
   sleep 1
   [ "$uport" ] && sed -i "/^ *name:/a        forward-addr: 127.0.0.1@$dpport#\n        forward-addr: ::1@$dpport" /etc/unbound/unbound.conf.d/pi-hole.conf || port=$dpport
-  apt install -t unstable dnscrypt-proxy
+  if [ "$DISTRO" == "debian" ]; then
+    apt install -t unstable dnscrypt-proxy
+  else
+    apt install dnscrypt-proxy
+  fi
   mv -f dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
   sed -i "s/\(.*\)=127..*/\1=127.0.0.1:$dpport\n\1=[::1]:$dpport/g" /lib/systemd/system/dnscrypt-proxy.socket
   sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf # Disable pihole cache, redundant and seems to slow things down
