@@ -84,10 +84,16 @@ sed -i 's@#net/ipv4/ip_forward=1@net/ipv4/ip_forward=1@g' /etc/ufw/sysctl.conf
 sed -i 's@#net/ipv6/conf/default/forwarding=1@net/ipv6/conf/default/forwarding=1@g' /etc/ufw/sysctl.conf
 sed -i 's@#net/ipv6/conf/all/forwarding=1@net/ipv6/conf/all/forwarding=1@g' /etc/ufw/sysctl.conf
 
-# Set up unstable repo for wireguard and dnscrypt-proxy
-echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >> /etc/apt/preferences.d/limit-unstable
-apt update -y
+# Set up unstable repo for wireguard and dnscrypt-proxy on debian 
+if [ -e /etc/os-release ]; then
+  source /etc/os-release
+  DISTRO=$ID
+fi
+if [ "$DISTRO" == "debian" ]; then
+  echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+  printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >> /etc/apt/preferences.d/limit-unstable
+  apt update -y
+fi
 
 echo "Setting up Pi-hole v5.0"
 echo "Select any dns server - it'll get changed by this script"
