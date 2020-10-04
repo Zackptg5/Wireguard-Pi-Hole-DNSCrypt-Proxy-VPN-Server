@@ -20,6 +20,7 @@ dir=$PWD
 inet=$(ip route show default | awk '/default/ {print $5}')
 ipaddr="$(hostname -I | awk '{print $1}')"
 ipaddr6="$(hostname -I | awk '{print $2}')"
+[ -f /etc/os-release ] && distro="$(grep -w ID /etc/os-release | sed 's/ID=//')" || distro="unknown"
 
 # User Setable Variables
 pihole_skip_os_check=false
@@ -84,10 +85,12 @@ sed -i 's@#net/ipv4/ip_forward=1@net/ipv4/ip_forward=1@g' /etc/ufw/sysctl.conf
 sed -i 's@#net/ipv6/conf/default/forwarding=1@net/ipv6/conf/default/forwarding=1@g' /etc/ufw/sysctl.conf
 sed -i 's@#net/ipv6/conf/all/forwarding=1@net/ipv6/conf/all/forwarding=1@g' /etc/ufw/sysctl.conf
 
-# Set up unstable repo for wireguard and dnscrypt-proxy
-echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >> /etc/apt/preferences.d/limit-unstable
-apt update -y
+if [ "$distro" == "debian" ]; then
+  # Set up unstable repo for wireguard and dnscrypt-proxy
+  echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+  printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >> /etc/apt/preferences.d/limit-unstable
+  apt update -y
+fi
 
 echo "Setting up Pi-hole v5.0"
 echo "Select any dns server - it'll get changed by this script"
@@ -132,7 +135,7 @@ elif [ "$dpport" ]; then
   echo "Setting up dnscrypt"
   sleep 1
   [ "$uport" ] && sed -i "/^ *name:/a        forward-addr: 127.0.0.1@$dpport#\n        forward-addr: ::1@$dpport" /etc/unbound/unbound.conf.d/pi-hole.conf || port=$dpport
-  apt install -t unstable dnscrypt-proxy
+  [ "$distro" = "debian" ] && apt install -t unstable dnscrypt-proxy || apt install dnscrypt-proxy
   mv -f dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
   sed -i "s/\(.*\)=127..*/\1=127.0.0.1:$dpport\n\1=[::1]:$dpport/g" /lib/systemd/system/dnscrypt-proxy.socket
   sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf # Disable pihole cache, redundant and seems to slow things down
