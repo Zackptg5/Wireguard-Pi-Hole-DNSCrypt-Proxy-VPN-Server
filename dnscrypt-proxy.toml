@@ -30,7 +30,7 @@
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
 # Use all the servers - specify anon servers that don't have a corresponding server
-server_names = ['ventricle.us', 'dnscrypt.ca-2-ipv6', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-1', 'ev-to', 'ev-va', 'freetsa.org', 'qualityology.com', 'v.dnscrypt.uk-ipv6', 'v.dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'faelix-uk-ipv6', 'faelix-uk-ipv4']
+server_names = ['ventricle.us', 'dnscrypt.ca-2-ipv6', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-1', 'freetsa.org', 'v.dnscrypt.uk-ipv6', 'v.dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'faelix-uk-ipv6', 'faelix-uk-ipv4']
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
@@ -726,10 +726,7 @@ routes = [
   { server_name='dnscrypt.ca-1-ipv6', via=['anon-ev-to', 'anon-cs-usnc'] },
   { server_name='dnscrypt.ca-2', via=['anon-ev-to', 'anon-cs-usnc'] },
   { server_name='dnscrypt.ca-2-ipv6', via=['anon-ev-to', 'anon-cs-usnc'] },
-  { server_name='ev-to', via=[ 'anon-cs-usnc', 'anon-cs-usga'] },
-  { server_name='ev-va', via=['anon-cs-ca2', 'anon-cs-usor'] },
   { server_name='freetsa.org', via=['anon-inconnu', 'anon-cs-usca'] },
-  { server_name='qualityology.com', via=['anon-inconnu', 'anon-cs-usca'] },
   { server_name='v.dnscrypt.uk-ipv4', via=['anon-cs-nl', 'anon-cs-nl2'] },
   { server_name='v.dnscrypt.uk-ipv6', via=['anon-cs-nl', 'anon-cs-nl2'] },
   { server_name='dnscrypt.uk-ipv4', via=['anon-cs-nl', 'anon-cs-nl2'] },
