@@ -1,12 +1,5 @@
 #!/bin/bash
 ###### Notes ######
-## SSH Key Gen ####
-# To remove key from client: ssh-keygen -R <ipaddr>
-# To login after changing port: ssh <USER>@ipaddr -p $sshport
-# To generate ssh keys:
-# On client:
-# ssh-keygen -t rsa -b 4096 # just hit enter for password prompts
-# ssh-copy-id <USER>@ipaddr -p $sshport
 ## See used ports ##
 # lsof -i -P -n
 ####################
