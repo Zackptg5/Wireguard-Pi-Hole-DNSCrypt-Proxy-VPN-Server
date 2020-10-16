@@ -62,12 +62,26 @@ Sets up your very own VPN server with my configs
 * `chmod +x Wireguard_After.bash `
 * `bash Wireguard_After.bash`
 
+## Further SSH Configuration
+* You can (and should) switch to using a key rather than a password. To do this, you will need to run this from your computer (not your server!)
+  ```
+  ssh-keygen -t rsa -b 4096
+  ssh-copy-id root@$ipaddr -p $sshport #The variables here are taken from the VPS_Setup Script
+  ```
+* Then on your server you just set up:
+  ```
+  sed -ri -e 's/^#PasswordAuthentication .*|^PasswordAuthentication yes/PasswordAuthentication no/' -e 's/^#UsePAM .*|^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+  echo "AuthenticationMethods publickey" >> /etc/ssh/sshd_config
+  service sshd restart
+  ```
+* Note that this is all with openssh. If you wish to use putty, you'll need to convert the key with puttygen or winscp
+* [See more tips for security here](https://github.com/BetterWayElectronics/secure-wireguard-implementation)
+
 ## Other Notes
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
 * The unbound config (pi-hole.conf) is pretty solid I think. Only thing you may want to change is some performance related variables like num-threads. Also note that enabling `auto-trust-anchor-file` prevented unbound service from starting regardless of forwarding or lack there of on my server. 
 * dnscrypt config (dnscrypt-proxy.toml) is set to use only dnscrypt servers with dnssec, no logging or filtering, and then annonymizes them. [See here for more details.](https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Anonymized-DNS) Note that I was able to wildcard it because the anon relays either didn't have a corresponding public server at the time of writing this or do filtering of some kind and so their servers aren't used (such as cryptostorm). This was a big plus for me because dnscrypt automatically sorts and picks the one with the lowest latency. Feel free to enable DOH or customize these however you want. DOH will require some extra setup though
 * I have ipv6 enabled
-* See the comments at the top of the setup script for some tips on ssh key generation
 
 ## Sources I Found Helpful Setting This All Up
 * [zzzkeil - Wireguard DNSCrypt Server Setup](https://github.com/zzzkeil/Wireguard-DNScrypt-VPN-Server)
