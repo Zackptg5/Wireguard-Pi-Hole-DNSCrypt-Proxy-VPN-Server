@@ -56,6 +56,11 @@ Sets up your very own VPN server with my configs
   * Follow script instructions - will require several reboots
 * Setup your lists in pi-hole
 
+## Updating
+* You may need to force specify the unstable branch. For example: apt install -t unstable dnscrypt-proxy
+* Whenever you update dnscrypt proxy, you'll need to reapply the [sockets patch](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L133) 
+* Whevever you update pihole, if you have dnscrypt-proxy or cloudflared installed, you'll need to [disable the pi-hole cache again](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L134)
+
 ## To Add More Wireguard Peers After Initial Setup
 * ssh into your server as root
 * Edit the user configurable variables in the Wireguard_After script
