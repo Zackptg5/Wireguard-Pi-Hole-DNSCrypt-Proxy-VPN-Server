@@ -3,7 +3,7 @@ Sets up your very own VPN server with my configs
 
 ## Requirements
 * Debian 10 (newer will probably work too - check if you need unstable repos for latest wireguard and dnscrypt-proxy)
-  * Maybe Ubuntu - haven't tested it myself so you're on your own there
+  * Maybe Ubuntu - haven't tested it myself so you're on your own there - dnscrypt-proxy is out of date, even in the PPA last I checked
 
 ## Options
 * Can change some of the variables in the beginning (keep all but devs if you're unsure):
@@ -15,6 +15,8 @@ Sets up your very own VPN server with my configs
   * cfrport - cloudflared port (optional)
   * uport - unbound port (optional)
   * dppport - dnscrypt-proxy port (optional)
+  * searx - install searx (optional)
+  * custdomain - name of custom domain you want redirected to main pihole landing page (optional)
 * Uncomment the port variable if you want unbound
 * Can change the unbound config (pi-hole.conf) how you want, don't change anything related to ips and ports though
 * Can change dnscrypt-proxy.toml how you want, don't change listen_addresses
@@ -30,6 +32,7 @@ Sets up your very own VPN server with my configs
 * Cloudflared - DNS-Over-HTTPS proxy - encrypts dns requests - optional
 * Unbound - local recursive/caching dns resolver with dnssec support - optional
 * DNSCrypt-proxy - caches, encrypts, and annoymizes dns requests - optional
+* Searx - metasearch engine - optional
 
 ## Configurations:
 * Just Pi-hole - barebones, pick a dns server in the pihole gui - you need to trust your isp and selected upstream DNS server(s)
@@ -57,9 +60,9 @@ Sets up your very own VPN server with my configs
 * Setup your lists in pi-hole
 
 ## Updating
-* You may need to force specify the unstable branch. For example: apt install -t unstable dnscrypt-proxy
-* Whenever you update dnscrypt proxy, you'll need to reapply the [sockets patch](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L133) 
-* Whevever you update pihole, if you have dnscrypt-proxy or cloudflared installed, you'll need to [disable the pi-hole cache again](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L134)
+* You may need to force specify the unstable branch for wireguard and dnscrypt-proxy. For example: apt install -t unstable dnscrypt-proxy
+* Whenever you update dnscrypt proxy, you'll need to reapply the [sockets patch](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L135) 
+* After updating pihole, run the Pihole_After_Update script to reapply patches
 
 ## To Add More Wireguard Peers After Initial Setup
 * ssh into your server as root
@@ -83,6 +86,7 @@ Sets up your very own VPN server with my configs
 * [See more tips for security here](https://github.com/BetterWayElectronics/secure-wireguard-implementation)
 
 ## Other Notes
+* To see used ports: `lsof -i -P -n`
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
 * The unbound config (pi-hole.conf) is pretty solid I think. Only thing you may want to change is some performance related variables like num-threads. Also note that enabling `auto-trust-anchor-file` prevented unbound service from starting regardless of forwarding or lack there of on my server. 
 * dnscrypt config (dnscrypt-proxy.toml) is set to use only dnscrypt servers with dnssec, no logging or filtering, and then annonymizes them. [See here for more details.](https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Anonymized-DNS) Note that I was able to wildcard it because the anon relays either didn't have a corresponding public server at the time of writing this or do filtering of some kind and so their servers aren't used (such as cryptostorm). This was a big plus for me because dnscrypt automatically sorts and picks the one with the lowest latency. Feel free to enable DOH or customize these however you want. DOH will require some extra setup though

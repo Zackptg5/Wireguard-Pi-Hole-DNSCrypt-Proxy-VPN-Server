@@ -1,4 +1,8 @@
 #!/bin/bash
+# To remove a client:
+# wg set wg0 peer <public-key> remove
+# systemctl restart wg-quick@wg0.service
+
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root" 
   exit 1
@@ -9,10 +13,7 @@ inet=$(ip route show default | awk '/default/ {print $5}')
 ipaddr="$(hostname -I | awk '{print $1}')"
 ipaddr6="$(hostname -I | awk '{print $3}')"
 
-# User Setable Variables - Match your initial setup variables (except with devs)
-intipaddr="192.168.1"
-intipaddr6="2607:55:55:55"
-wgport=51820
+# Set to whatever new profiles you want
 devs="new1 new2"
 
 umask 077
@@ -55,6 +56,7 @@ chmod -R og-rwx *
 umask 0022
 cd $dir
 wg addconf wg0 <(wg-quick strip wg0)
+systemctl restart wg-quick@wg0.service
 
 echo "All Done!"
 exit 0

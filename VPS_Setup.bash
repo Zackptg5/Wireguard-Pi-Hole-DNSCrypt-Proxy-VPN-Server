@@ -1,9 +1,4 @@
 #!/bin/bash
-###### Notes ######
-## See used ports ##
-# lsof -i -P -n
-####################
-
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root" 
   exit 1
@@ -17,18 +12,18 @@ ipaddr6="$(hostname -I | awk '{print $2}')"
 
 # User Setable Variables
 pihole_skip_os_check=false
-intipaddr="192.168.1"
+intipaddr="10.0.0"
 intipaddr6="2607:55:55:55"
 wgport=51820
 sshport=1024
-devs="dabeast zenvy pixel"
+devs="dev1 dev2 dev3"
+# searx=true
+# custdomain=anonzackptg5.com
 # uport=5353
 dpport=5354
 # cfrport=5053
 
 # Setup
-# passwd
-# resize2fs "$(df -h | awk '{print $1}' | grep /dev/ | head -n1)" # Needed for my vps server
 echo "Updating and installing packages"
 echo "Keep installed copies if asked!"
 sleep 3
@@ -42,11 +37,6 @@ systemctl enable fail2ban
 systemctl start fail2ban
 sed -ri -e 's/^#PermitEmptyPasswords .*|^PermitEmptyPasswords yes/PermitEmptyPasswords no/' -e "s/^#Port.*|^Port.*/Port $sshport/" /etc/ssh/sshd_config
 service sshd restart
-echo "Rerun this script after rebooting!"
-echo "ssh root@$ipaddr -p $sshport"
-sed -i -e "s/^ipaddr=.*/ipaddr=\"$ipaddr\"/" -e "s/^ipaddr6=.*/ipaddr6=\"$ipaddr6\"/" -e "s/^inet=.*/inet=$inet/" -e "/^# Setup/,/^exit 0/d" $0
-reboot
-exit 0
 
 echo "Setting up UFW"
 sleep 1
@@ -97,17 +87,17 @@ pihole -a -p
 echo "proxy-dnssec" > /etc/dnsmasq.d/02-dnscrypt.conf
 
 if [ "$uport" ]; then
-    echo "Setting up Unbound"
-    sleep 1
-    port=$uport
-    apt install unbound unbound-host -y
-    curl -o /var/lib/unbound/root.hints https://www.internic.net/domain/named.cache
-    chown -R unbound:unbound /var/lib/unbound
-    sed -i -e "s/<port>/$uport/" -e "s/<ipaddr>/$ipaddr/g" -e "s/<intipaddr>/$intipaddr/g" -e "s/<intipaddr6>/$intipaddr6/g" pi-hole.conf
-    mv -f pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf
-    # Fix for no dns for wireguard client issue
-    systemctl disable unbound
-    sed -i 's/^After=network.target/After=wg-quick@wg0.service/' /lib/systemd/system/unbound.service
+  echo "Setting up Unbound"
+  sleep 1
+  port=$uport
+  apt install unbound unbound-host -y
+  curl -o /var/lib/unbound/root.hints https://www.internic.net/domain/named.cache
+  chown -R unbound:unbound /var/lib/unbound
+  sed -i -e "s/<port>/$uport/" -e "s/<ipaddr>/$ipaddr/g" -e "s/<intipaddr>/$intipaddr/g" -e "s/<intipaddr6>/$intipaddr6/g" pi-hole.conf
+  mv -f pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf
+  # Fix for no dns for wireguard client issue
+  systemctl disable unbound
+  sed -i 's/^After=network.target/After=wg-quick@wg0.service/' /lib/systemd/system/unbound.service
 fi
 if [ "$cfrport" ]; then
   echo "Setting up cloudflared"
@@ -118,12 +108,13 @@ if [ "$cfrport" ]; then
   cloudflared -v
   mkdir /etc/cloudflared
   echo -e "proxy-dns: true\nproxy-dns-port: $cfrport\nproxy-dns-upstream:\n  - https://1.1.1.1/dns-query\n  - https://1.0.0.1/dns-query\n  - https://[2606:4700:4700::1111]/dns-query\n  - https://[2606:4700:4700::1001]/dns-query" > /etc/cloudflared/config.yml
-  cloudflared service install
+  cloudflared service install --legacy
   systemctl start cloudflared
   # Setup weekly update check since not in repo
   echo -e "cloudflared update\nsystemctl restart cloudflared" > /etc/cron.weekly/cloudflared-updater.sh
   chmod +x /etc/cron.weekly/cloudflared-updater.sh
   chown root:root /etc/cron.weekly/cloudflared-updater.sh
+  sed -i '/cache-size/d' $dir/Pihole_After_Update.bash
 elif [ "$dpport" ]; then
   echo "Setting up dnscrypt"
   sleep 1
@@ -136,6 +127,8 @@ elif [ "$uport" ]; then
   # Use cloudflare
   sed -i "/^ *name:/a\        forward-addr: 1.1.1.1@53#cloudflare-dns.com\n        forward-addr: 1.0.0.1@53#cloudflare-dns.com" /etc/unbound/unbound.conf.d/pi-hole.conf
   sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf # Disable pihole cache, redundant and seems to slow things down
+else
+  sed -i '/cache-size/d' $dir/Pihole_After_Update.bash
 fi
 
 # Now we can start it since forward addresses are set
@@ -145,6 +138,7 @@ if [ "$uport" ]; then
 fi
 
 echo "Setting up wireguard"
+sed -i "1a intipaddr=\"$intipaddr\"\nintipaddr6="$intipaddr6"\nwgport=$wgport" $dir/Wireguard_After.bash
 sleep 1
 apt install wireguard qrencode -y
 umask 077
@@ -214,15 +208,52 @@ esac
 
 # Only allow those connected to vpn to access pi-hole
 echo -e '$HTTP["remoteip"] !~ "'$intipaddr'\." {\n  url.access-deny = ( "" )\n }' > /etc/lighttpd/external.conf
-pihole restartdns
+
+# Add custom domain name as redirect for main page
+sed -i "1a intipaddr=$intipaddr\nsearx=$searx\ncustdomain=$custdomain" $dir/Pihole_After_Update.bash
+if [ "$custdomain" ]; then
+  sed -i "s/elseif (filter_var(\$serverName/elseif (\$serverName === \"$custdomain\" || filter_var(\$serverName/" /var/www/html/pihole/index.php
+  echo "$intipaddr.1 $custdomain" >> /etc/pihole/custom.list
+fi
 
 # Reload ufw
 ufw --force enable
 ufw reload
 
+if [ "$searx" ]; then
+  # Install searx
+  cd /opt
+  git clone https://github.com/searx/searx searx
+  cd searx
+  sudo -H ./utils/searx.sh install all
+  sudo -H ./utils/filtron.sh install all
+  sudo -H ./utils/morty.sh install all
+  ufw allow 8888/tcp
+  ufw allow 3000/tcp
+  ufw allow 4004/tcp
+  # Add link to searx search from main page
+  if [ "$custdomain" ]; then
+    sed -i "s/instance_name : \".*\"/instance_name : \"$(echo $custdomain | cut -d . -f1)\"/" /etc/searx/settings.yml
+    sed -i "/admin panel?/a\            <a href='http://$custdomain:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+  else
+    sed -i "/admin panel?/a\            <a href='http://$intipaddr:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+  fi
+  sed -i -e "s/secret_key : .*/secret_key : $(openssl rand -hex 16)/" -e 's/autocomplete : ".*" #/autocomplete : "google" #/' /etc/searx/settings.yml
+  # Set dark theme and disable bing by default
+  sed -i "/image_proxy/a\ \nui:\n    theme_args :\n        oscar_style : logicodev-dark" /etc/searx/settings.yml
+  sed -i "/image_proxy/a\ \nengines:\n  - name : bing\n    engine : bing\n    shortcut : bi\n    disabled: true" /etc/searx/settings.yml
+  sed -i "/http = .*/http = $intipaddr.1:8888/" /etc/uwsgi/apps-available/searx.ini
+  cd $dir
+fi
+
+pihole restartdns
+echo "Choose 'repair' when prompted"
+sleep 3
+pihole -r
+bash Pihole_After_Update.bash
+
 echo "All Done!"
-echo "Cleaning up and rebooting!"
+echo "Rebooting!"
 sleep 1
-rm $0
 reboot
 exit 0
