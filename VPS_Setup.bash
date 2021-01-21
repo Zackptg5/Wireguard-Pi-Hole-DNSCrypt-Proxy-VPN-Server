@@ -242,7 +242,7 @@ if [ "$searx" ]; then
   # Set dark theme and disable bing by default
   sed -i "/image_proxy/a\ \nui:\n    theme_args :\n        oscar_style : logicodev-dark" /etc/searx/settings.yml
   sed -i "/image_proxy/a\ \nengines:\n  - name : bing\n    engine : bing\n    shortcut : bi\n    disabled: true" /etc/searx/settings.yml
-  sed -i "/http = .*/http = $intipaddr.1:8888/" /etc/uwsgi/apps-available/searx.ini
+  sed -i "s/http = .*/http = $intipaddr.1:8888/" /etc/uwsgi/apps-available/searx.ini
   cd $dir
 fi
 
