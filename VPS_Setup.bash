@@ -236,7 +236,7 @@ if [ "$searx" ]; then
     sed -i "s/instance_name : \".*\"/instance_name : \"$(echo $custdomain | cut -d . -f1)\"/" /etc/searx/settings.yml
     sed -i "/admin panel?/a\            <a href='http://$custdomain:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   else
-    sed -i "/admin panel?/a\            <a href='http://$intipaddr:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+    sed -i "/admin panel?/a\            <a href='http://$intipaddr.1:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   fi
   sed -i -e "s/secret_key : .*/secret_key : $(openssl rand -hex 16)/" -e 's/autocomplete : ".*" #/autocomplete : "google" #/' /etc/searx/settings.yml
   # Set dark theme and disable bing by default

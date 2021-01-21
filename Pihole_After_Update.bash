@@ -11,7 +11,7 @@ if [ "$searx" ]; then
   if [ "$custdomain" ]; then
     sed -i "/admin panel?/a\            <a href='http://$custdomain:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   else
-    sed -i "/admin panel?/a\            <a href='http://$intipaddr:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+    sed -i "/admin panel?/a\            <a href='http://$intipaddr.1:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   fi
 fi
 # Add custom domain name as redirect for main page
