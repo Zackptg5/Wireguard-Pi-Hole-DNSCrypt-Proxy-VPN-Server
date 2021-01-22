@@ -782,17 +782,17 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 # anon-cs-usca - Los Angeles, California, US
 # anon-cs-usnv - Las Vegas, Nevada, US
 routes = [
- { server_name='plan9-dns', via=['anon-cs-ustx', 'anon-cs-usnc'] },
- { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
- { server_name='dnscrypt.ca-1', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='dnscrypt.ca-1-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='dnscrypt.ca-2', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='dnscrypt.ca-2-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='ev-canada', via=['anon-plan9-dns', 'anon-cs-usnc'] },
- { server_name='moulticast-ca-ipv4', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='moulticast-ca-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
- { server_name='freetsa.org-ipv4', via=['anon-cs-usnv', 'anon-cs-usca'] },
- { server_name='freetsa.org-ipv6', via=['anon-cs-usnv', 'anon-cs-usca'] },
+  { server_name='plan9-dns', via=['anon-cs-ustx', 'anon-cs-usnc'] },
+  { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
+  { server_name='dnscrypt.ca-1', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-1-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-2', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-2-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='ev-canada', via=['anon-plan9-dns', 'anon-cs-usnc'] },
+  { server_name='moulticast-ca-ipv4', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='moulticast-ca-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='freetsa.org-ipv4', via=['anon-cs-usnv', 'anon-cs-usca'] },
+  { server_name='freetsa.org-ipv6', via=['anon-cs-usnv', 'anon-cs-usca'] }
 ]
 ### UK
 ## Servers:
