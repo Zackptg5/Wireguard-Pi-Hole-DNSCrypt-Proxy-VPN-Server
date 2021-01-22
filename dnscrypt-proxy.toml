@@ -31,7 +31,7 @@
 
 # Use all the servers - specify anon servers that don't have a corresponding server
 # Eastern USA/CA
-server_names = ['plan9-dns', 'ventricle.us', 'dnscrypt.ca-2-ipv6', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-1', 'ev-canada', 'freetsa.org-ipv6', 'freetsa.org-ipv4', 'v.dnscrypt.uk-ipv6', 'v.dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'faelix-uk-ipv6', 'faelix-uk-ipv4']
+server_names = ['ventricle.us', 'dnscrypt.ca-1', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-2-ipv6', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-dns', 'ev-canada', 'freetsa.org-ipv4', 'freetsa.org-ipv6']
 # UK
 # server_names = ['v.dnscrypt.uk-ipv4', 'v.dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'faelix-uk-ipv4', 'faelix-uk-ipv6', 'moulticast-uk-ipv4', 'meganerd', 'meganerd-ipv6', 'moulticast-fr-ipv4', 'scaleway-fr', 'scaleway-fr-ipv6', 'scaleway-ams', 'scaleway-ams-ipv6', 'acsacsar-ams-ipv4', 'acsacsar-ams-ipv6']
 
@@ -774,38 +774,25 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 # dnscrypt.ca-1/ipv6 - Montreal, CA
 # ev-canada - Vancouver, CA
 # freetsa.org-ipv4/6 - California, US
-# qualityology.com - California, US
-# v.dnscrypt.uk-ipv4/v6 - London, uk
-# dnscrypt.uk-ipv4/6 - London, UK
-# faelix-uk-ipv4/6 - Buxton, UK
+# moulticast-ca-ipv4/6 - CA
 ## Anon Relays:
-# anon-ev-canada - Vancouver, CA
 # anon-plan9-dns - New Jersey, US
-# anon-cs-usnc - North Carolina, US
-# anon-cs-usca - California, US
-# anon-cs-usor - Oregon, US
-# anon-cs-usga - Georgia, US
-# anon-inconnu - California, US
-# anon-v.dnscrypt.uk-ipv4/6 - London, uk
-# anon-dnscrypt.uk-ipv4/6 -London, uk
-# anon-acsacsar-ams-ipv4/ipv6 - Amsterdam, Netherlands
-# anon-scaleway-ams/ipv6 - Amsterdam, Netherlands (run by jedisct1)
+# anon-cs-usnc - Charlotte, North Carolina, US
+# anon-cs-ustx - Dallas, Texas, US
+# anon-cs-usca - Los Angeles, California, US
+# anon-cs-usnv - Las Vegas, Nevada, US
 routes = [
-  { server_name='plan9-dns', via=['anon-ev-canada', 'anon-cs-usnc'] },
-  { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
-  { server_name='dnscrypt.ca-1', via=['anon-ev-canada', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-1-ipv6', via=['anon-ev-canada', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2', via=['anon-ev-canada', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2-ipv6', via=['anon-ev-canada', 'anon-plan9-dns'] },
-  { server_name='ev-canada', via=['anon-plan9-dns', 'anon-cs-usnc'] },
-  { server_name='freetsa.org-ipv4', via=['anon-inconnu', 'anon-cs-usca'] },
-  { server_name='freetsa.org-ipv6', via=['anon-inconnu', 'anon-cs-usca'] },
-  { server_name='v.dnscrypt.uk-ipv4', via=['anon-scaleway-ams', 'anon-acsacsar-ams-ipv4'] },
-  { server_name='v.dnscrypt.uk-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-acsacsar-ams-ipv6'] },
-  { server_name='dnscrypt.uk-ipv4', via=['anon-scaleway-ams', 'anon-acsacsar-ams-ipv4'] },
-  { server_name='dnscrypt.uk-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-acsacsar-ams-ipv6'] },
-  { server_name='faelix-uk-ipv4', via=['anon-v.dnscrypt.uk-ipv4', 'anon-dnscrypt.uk-ipv4'] },
-  { server_name='faelix-uk-ipv6', via=['anon-v.dnscrypt.uk-ipv6', 'anon-dnscrypt.uk-ipv6'] }
+ { server_name='plan9-dns', via=['anon-cs-ustx', 'anon-cs-usnc'] },
+ { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
+ { server_name='dnscrypt.ca-1', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='dnscrypt.ca-1-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='dnscrypt.ca-2', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='dnscrypt.ca-2-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='ev-canada', via=['anon-plan9-dns', 'anon-cs-usnc'] },
+ { server_name='moulticast-ca-ipv4', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='moulticast-ca-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
+ { server_name='freetsa.org-ipv4', via=['anon-cs-usnv', 'anon-cs-usca'] },
+ { server_name='freetsa.org-ipv6', via=['anon-cs-usnv', 'anon-cs-usca'] },
 ]
 ### UK
 ## Servers:
