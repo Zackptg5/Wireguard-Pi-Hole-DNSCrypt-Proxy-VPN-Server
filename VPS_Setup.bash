@@ -44,7 +44,7 @@ apt install ufw -y
 # Wireguard rule
 ufw allow $wgport/udp
 # SSH rule
-ufw allow $sshport/any
+ufw allow $sshport/tcp
 # Pi-hole rules
 ufw allow 80/tcp
 ufw allow 53/tcp
@@ -213,13 +213,6 @@ esac
 # Only allow those connected to vpn to access pi-hole
 echo -e '$HTTP["remoteip"] !~ "'$intipaddr'\." {\n  url.access-deny = ( "" )\n }' > /etc/lighttpd/external.conf
 
-# Add custom domain name as redirect for main page
-sed -i "1a intipaddr=$intipaddr\nsearx=$searx\ncustdomain=$custdomain" $dir/Pihole_After_Update.bash
-if [ "$custdomain" ]; then
-  sed -i "s/elseif (filter_var(\$serverName/elseif (\$serverName === \"$custdomain\" || filter_var(\$serverName/" /var/www/html/pihole/index.php
-  echo "$intipaddr.1 $custdomain" >> /etc/pihole/custom.list
-fi
-
 # Reload ufw
 ufw --force enable
 ufw reload
@@ -229,26 +222,32 @@ if [ "$searx" ]; then
   cd /opt
   git clone https://github.com/searx/searx searx
   cd searx
-  sudo -H ./utils/searx.sh install all
-  sudo -H ./utils/filtron.sh install all
-  sudo -H ./utils/morty.sh install all
-  ufw allow 8888/tcp
-  ufw allow 3000/tcp
+  sed -in "/SEARX_INTERNAL_URL/p; s/SEARX_INTERNAL_URL/SEARX_INTERNAL_HTTP/" .config.sh
+  sed -ri "s/#(.*)127.0.0.1(.*)/\1$intipaddr.1\2/g" .config.sh
+  ./utils/searx.sh install all
+  ./utils/filtron.sh install all
+  # ufw allow 8888/tcp
   ufw allow 4004/tcp
   # Add link to searx search from main page
   if [ "$custdomain" ]; then
     sed -i "s/instance_name : \".*\"/instance_name : \"$(echo $custdomain | cut -d . -f1)\"/" /etc/searx/settings.yml
-    sed -i "/admin panel?/a\            <a href='http://$custdomain:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+    sed -i "/admin panel?/a\            <a href='http://$custdomain:4004'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   else
-    sed -i "/admin panel?/a\            <a href='http://$intipaddr.1:8888'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
+    sed -i "/admin panel?/a\            <a href='http://$intipaddr.1:4004'></br>Or did you mean to go to Searx?</a>" /var/www/html/pihole/index.php
   fi
   sed -i -e "s/secret_key : .*/secret_key : $(openssl rand -hex 16)/" -e 's/autocomplete : ".*" #/autocomplete : "google" #/' /etc/searx/settings.yml
-  # Set dark theme and disable bing by default
-  sed -i "/image_proxy/a\ \nui:\n    theme_args :\n        oscar_style : logicodev-dark" /etc/searx/settings.yml
+  # Set dark theme, show advanced settings, and disable bing by default
+  sed -i "/image_proxy/a\ \nui:\n    advanced_search : True\n    theme_args :\n        oscar_style : logicodev-dark" /etc/searx/settings.yml
   sed -i "/image_proxy/a\ \nengines:\n  - name : bing\n    engine : bing\n    shortcut : bi\n    disabled: true" /etc/searx/settings.yml
-  sed -i "s/http = .*/http = $intipaddr.1:8888/" /etc/uwsgi/apps-available/searx.ini
-  cd $dir
+  sed -i '/image_proxy/a\ \nenabled_plugins:\n  - "Open Access DOI rewrite"\n  - "Hash plugin"\n  - "HTTPS rewrite"\n  - "Infinite scroll"\n  - "Self Informations"\n  - "Search on category select"\n  - "Tracker URL remover"' /etc/searx/settings.yml
+  systemctl restart uwsgi
 fi
+# Add custom domain name as redirect for main page
+if [ "$custdomain" ]; then
+  sed -i "s/elseif (filter_var(\$serverName/elseif (\$serverName === \"$custdomain\" || filter_var(\$serverName/" /var/www/html/pihole/index.php
+  echo "$intipaddr.1 $custdomain" >> /etc/pihole/custom.list
+fi
+sed -i "1a intipaddr=$intipaddr\nsearx=$searx\ncustdomain=$custdomain" $dir/Pihole_After_Update.bash
 
 pihole restartdns
 echo "Choose 'repair' when prompted"
