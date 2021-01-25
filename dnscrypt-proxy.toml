@@ -31,7 +31,7 @@
 
 # Use all the servers - specify anon servers that don't have a corresponding server
 # Eastern USA/CA
-server_names = ['ventricle.us', 'dnscrypt.ca-1', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-2-ipv6', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-dns', 'ev-canada', 'freetsa.org-ipv4', 'freetsa.org-ipv6']
+server_names = ['zackptg5-us-il-ipv4', 'zackptg5-us-il-ipv6', 'ventricle.us', 'dnscrypt.ca-1', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-2-ipv6', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-dns', 'ev-canada', 'freetsa.org-ipv4', 'freetsa.org-ipv6']
 # UK
 # server_names = ['v.dnscrypt.uk-ipv4', 'v.dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'faelix-uk-ipv4', 'faelix-uk-ipv6', 'moulticast-uk-ipv4', 'meganerd', 'meganerd-ipv6', 'moulticast-fr-ipv4', 'scaleway-fr', 'scaleway-fr-ipv6', 'scaleway-ams', 'scaleway-ams-ipv6', 'acsacsar-ams-ipv4', 'acsacsar-ams-ipv6']
 
@@ -768,6 +768,7 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 #### Optimzied for speed but without overlapping locations
 ### Eastern USA/CA
 ## Servers:
+# zackptg5-us-il-ip4/6 - Chicago, Illinois, US
 # plan9-dns - New Jersey, US
 # ventricle.us - New Jersey, US
 # dnscrypt.ca-2/ipv6 - Toronto, CA
@@ -776,12 +777,16 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 # freetsa.org-ipv4/6 - California, US
 # moulticast-ca-ipv4/6 - CA
 ## Anon Relays:
+# anon-zackptg5-us-il-ip4/6 - Chicago, Illinois, US
 # anon-plan9-dns - New Jersey, US
 # anon-cs-usnc - Charlotte, North Carolina, US
 # anon-cs-ustx - Dallas, Texas, US
 # anon-cs-usca - Los Angeles, California, US
 # anon-cs-usnv - Las Vegas, Nevada, US
+## The zackptg5 relays are mine and are all on the same server. If you want to change the anon relay to another one cause you don't trust me, I won't hold it against you ;)
 routes = [
+  { server_name='zackptg5-us-il-ipv4', via=['anon-zackptg5-us-il-ipv4'] },
+  { server_name='zackptg5-us-il-ipv6', via=['anon-zackptg5-us-il-ipv6'] },
   { server_name='plan9-dns', via=['anon-cs-ustx', 'anon-cs-usnc'] },
   { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
   { server_name='dnscrypt.ca-1', via=['anon-cs-ustx', 'anon-plan9-dns'] },

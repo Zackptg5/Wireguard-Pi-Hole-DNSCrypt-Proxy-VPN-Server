@@ -85,6 +85,9 @@ Sets up your very own VPN server with my configs
 * Note that this is all with openssh. If you wish to use putty, you'll need to convert the key with puttygen or winscp
 * [See more tips for security here](https://github.com/BetterWayElectronics/secure-wireguard-implementation)
 
+## DnsCrypt-Proxy Note
+* I have all the anonymized relays set to be on different servers then the resolvers except mine (the zackptg5 ones). Reason being I trust myself to do what it says which is DNSSEC, no filters, no logging. My resolvers and relays are all run on the same server so if you don't feel comfortable with that (and I don't blame you there), you can change the relay to an east cost one like anon-plan9-dns. You'll lose speed but you may gain some peace of mind :)
+
 ## Other Notes
 * To see used ports: `lsof -i -P -n`
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
