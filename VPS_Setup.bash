@@ -226,7 +226,6 @@ if [ "$searx" ]; then
   sed -ri "s/#(.*)127.0.0.1(.*)/\1$intipaddr.1\2/g" .config.sh
   ./utils/searx.sh install all
   ./utils/filtron.sh install all
-  # ufw allow 8888/tcp
   ufw allow 4004/tcp
   # Add link to searx search from main page
   if [ "$custdomain" ]; then
@@ -240,6 +239,9 @@ if [ "$searx" ]; then
   sed -i "/image_proxy/a\ \nui:\n    advanced_search : True\n    theme_args :\n        oscar_style : logicodev-dark" /etc/searx/settings.yml
   sed -i "/image_proxy/a\ \nengines:\n  - name : bing\n    engine : bing\n    shortcut : bi\n    disabled: true" /etc/searx/settings.yml
   sed -i '/image_proxy/a\ \nenabled_plugins:\n  - "Open Access DOI rewrite"\n  - "Hash plugin"\n  - "HTTPS rewrite"\n  - "Infinite scroll"\n  - "Self Informations"\n  - "Search on category select"\n  - "Tracker URL remover"' /etc/searx/settings.yml
+  # Set sci-hub to default, fix link (tw is dead)
+  sed -i "s/oadoi.org/sci-hub.do/g" /usr/local/searx/searx-src/searx/preferences.py
+  sed -i "s/sci-hub.tw/sci-hub.do/g" /usr/local/searx/searx-src/searx/settings.yml
   systemctl restart uwsgi
 fi
 # Add custom domain name as redirect for main page
