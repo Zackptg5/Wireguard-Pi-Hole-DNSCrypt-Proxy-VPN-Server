@@ -17,7 +17,6 @@ Sets up your very own VPN server with my configs
   * dppport - dnscrypt-proxy port (optional)
   * searx - install searx (optional)
   * custdomain - name of custom domain you want redirected to main pihole landing page (optional)
-* Uncomment the port variable if you want unbound
 * Can change the unbound config (pi-hole.conf) how you want, don't change anything related to ips and ports though
 * Can change dnscrypt-proxy.toml how you want, don't change listen_addresses
   * I recommend you change the servers and anonymized relays to the fastest for your location
