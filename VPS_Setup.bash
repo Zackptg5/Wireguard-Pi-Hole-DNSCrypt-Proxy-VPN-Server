@@ -168,8 +168,7 @@ for i in $devs; do
 # $i
 PublicKey = $(<$i-pubkey)
 PresharedKey = $(<preshared-key)
-AllowedIPs = $intipaddr.$count/32, $intipaddr6::$count/128
-PersistentkeepAlive = 60" >> wg0.conf
+AllowedIPs = $intipaddr.$count/32, $intipaddr6::$count/128" >> wg0.conf
 
   echo "[Interface]
 Address = $intipaddr.$count/24, $intipaddr6::$count/64
@@ -182,7 +181,7 @@ PublicKey = $(<server-pubkey)
 PresharedKey = $(<preshared-key)
 Endpoint = $ipaddr:$wgport
 AllowedIPs = 0.0.0.0/0, ::/0
-PersistentKeepalive = 60" > $i.conf
+PersistentKeepalive = 25" > $i.conf
 
   echo "$i:"
   qrencode -t ansiutf8 < $i.conf
