@@ -41,8 +41,7 @@ PrivateKey = $(<$i-privkey)
 PublicKey = $(<server-pubkey)
 PresharedKey = $(<preshared-key)
 Endpoint = $ipaddr:$wgport
-AllowedIPs = 0.0.0.0/0, ::/0
-PersistentKeepalive = 60" > $i.conf
+AllowedIPs = 0.0.0.0/0, ::/0" > $i.conf
 
   echo "$i:"
   qrencode -t ansiutf8 < $i.conf
