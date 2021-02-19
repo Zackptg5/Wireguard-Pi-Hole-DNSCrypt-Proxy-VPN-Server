@@ -50,6 +50,17 @@ Sets up your very own VPN server with my configs
 * You may want unbound for other reasons and so I made this optional
 * Bascially, the addition of anonymized relays negates the need for unbound
 
+## When should I use PersistentKeepAlive?
+* Based on my limited understanding, only use it for a server and/or client if it's behind a NAT firewall. I was having issues with the wireguard android app and found it to be related to having this enabled when it wasn't necessary
+
+## How can I share my LAN from a client with the rest of my network?
+* [This guide](https://iliasa.eu/wireguard-how-to-access-a-peers-local-network) summarizes it nicely
+* Essentially, add the lan subnet to the client's AllowedIPs section in the SERVER conf
+  * So if you lan address on client A is `192.168.1.x`, you would add `192.168.1.0/24` to the AllowedIPs section in client A's config file
+  * Note that this is NOT done on the client conf but on the SERVER conf
+* Special note for windows users
+  * Windows does weird routing stuff so you will also need to add the lan subnet to the window's PC's AllowedIPs section too even if you have the all ip 0.0.0.0/0 entry like is default
+
 ## How to Install
 * ssh into your server as root
 * Place all of the files in this repo in your vps server
