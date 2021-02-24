@@ -154,7 +154,6 @@ wg genkey | tee server-privkey | wg pubkey > server-pubkey
 echo "[Interface]
 Address = $intipaddr.1/24, $intipaddr6::1/64
 ListenPort = $wgport
-SaveConfig = true
 PrivateKey = $(<server-privkey)
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $inet -j MASQUERADE
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o $inet -j MASQUERADE" > wg0.conf
