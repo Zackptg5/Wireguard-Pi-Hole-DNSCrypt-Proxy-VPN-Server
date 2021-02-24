@@ -58,6 +58,9 @@ Sets up your very own VPN server with my configs
 * Essentially, add the lan subnet to the client's AllowedIPs section in the SERVER conf
   * So if you lan address on client A is `192.168.1.x`, you would add `192.168.1.0/24` to the AllowedIPs section in client A's config file
   * Note that this is NOT done on the client conf but on the SERVER conf
+* However, if the client does not have kill switch capability (such as android), you'll get a dns leak through this client so it's best to specify the specific IPs that you want allowed rather than the whole LAN.
+  * For example, instead of whole lan: `192.168.1.0/24`, specify exact devices: `192.168.1.5/32, 192.168.1.8/32`
+  * The specific device in your lan that would case the dns leak would be your routers IP such as `192.168.1.1` so essentially don't list that and you'll be fine
 * Special note for windows users
   * Windows does weird routing stuff so you will also need to add the lan subnet to the window's PC's AllowedIPs section too even if you have the all ip 0.0.0.0/0 entry like is default
 
