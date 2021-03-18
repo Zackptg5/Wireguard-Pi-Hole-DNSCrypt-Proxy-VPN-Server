@@ -133,7 +133,7 @@ elif [ "$uport" ]; then
   sed -i "s/cache-size=.*/cache-size=0/g" /etc/dnsmasq.d/01-pihole.conf
   sed -i "s/CACHE_SIZE=.*/CACHE_SIZE=0/" /etc/pihole/setupVars.conf
 else
-  sed -i '/cache-size/d' $dir/Pihole_After_Update.bash
+  sed -ri '/cache-size|CACHE_SIZE/d' $dir/Pihole_After_Update.bash
 fi
 
 # Now we can start it since forward addresses are set
@@ -200,13 +200,14 @@ systemctl start wg-quick@wg0.service
 if [ "$port" ]; then
   sed -ri "/^PIHOLE_DNS|^DNS_FQDN_REQUIRED|^DNS_BOGUS_PRIV|^DNSSEC|^DNSMASQ_LISTENING|^PIHOLE_INTERFACE/d" /etc/pihole/setupVars.conf
   echo -e "PIHOLE_INTERFACE=$inet\nDNSMASQ_LISTENING=local\nDNS_FQDN_REQUIRED=false\nDNS_BOGUS_PRIV=false\nDNSSEC=false" >> /etc/pihole/setupVars.conf
+  case $port in
+    $uport) echo -e "PIHOLE_DNS_1=127.0.0.1#$uport\nPIHOLE_DNS_2=::1#$uport" >> /etc/pihole/setupVars.conf;;
+    $cfrport) echo -e "PIHOLE_DNS_1=127.0.0.1#$cfrport\nPIHOLE_DNS_2=::1#$cfrport" >> /etc/pihole/setupVars.conf;;
+    $dpport) echo -e "PIHOLE_DNS_1=127.0.0.1#$dpport\nPIHOLE_DNS_2=::1#$dpport" >> /etc/pihole/setupVars.conf;;
+  esac
+else
+  sed -i -e "s/DNSMASQ_LISTENING=.*/DNSMASQ_LISTENING=local/g" -e "s/PIHOLE_INTERFACE=.*/PIHOLE_INTERFACE=$inet/g" /etc/pihole/setupVars.conf
 fi
-case $port in
-  $uport) echo -e "PIHOLE_DNS_1=127.0.0.1#$uport\nPIHOLE_DNS_2=::1#$uport" >> /etc/pihole/setupVars.conf;;
-  $cfrport) echo -e "PIHOLE_DNS_1=127.0.0.1#$cfrport\nPIHOLE_DNS_2=::1#$cfrport" >> /etc/pihole/setupVars.conf;;
-  $dpport) echo -e "PIHOLE_DNS_1=127.0.0.1#$dpport\nPIHOLE_DNS_2=::1#$dpport" >> /etc/pihole/setupVars.conf;;
-  *) sed -i -e "s/DNSMASQ_LISTENING=.*/DNSMASQ_LISTENING=local/g" -e "s/PIHOLE_INTERFACE=.*/PIHOLE_INTERFACE=$inet/g" /etc/pihole/setupVars.conf;;
-esac
 
 # Only allow those connected to vpn to access pi-hole
 echo -e '$HTTP["remoteip"] !~ "'$intipaddr'\." {\n  url.access-deny = ( "" )\n }' > /etc/lighttpd/external.conf
