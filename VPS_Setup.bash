@@ -115,7 +115,7 @@ if [ "$cfrport" ]; then
   echo -e "cloudflared update\nsystemctl restart cloudflared" > /etc/cron.weekly/cloudflared-updater.sh
   chmod +x /etc/cron.weekly/cloudflared-updater.sh
   chown root:root /etc/cron.weekly/cloudflared-updater.sh
-  sed -i '/cache-size/d' $dir/Pihole_After_Update.bash
+  sed -ri '/cache-size|CACHE_SIZE/d' $dir/Pihole_After_Update.bash
 elif [ "$dpport" ]; then
   echo "Setting up dnscrypt"
   sleep 1
