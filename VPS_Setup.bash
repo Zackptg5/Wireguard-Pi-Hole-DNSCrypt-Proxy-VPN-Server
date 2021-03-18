@@ -7,7 +7,7 @@ fi
 dir=$PWD
 inet=$(ip route show default | awk '/default/ {print $5}')
 ipaddr="$(hostname -I | awk '{print $1}')"
-ipaddr6="$(hostname -I | awk '{print $2}')"
+ipaddr6="$(hostname -I | awk '{print $NF}')"
 [ -f /etc/os-release ] && distro="$(grep -w ID /etc/os-release | sed 's/ID=//')" || distro="unknown"
 
 # User Setable Variables
@@ -28,6 +28,7 @@ echo "Updating and installing packages"
 echo "Keep installed copies if asked!"
 sleep 3
 apt update && apt upgrade -y
+apt install linux-headers-$(uname -r) -y # Install kernel headers if not installed (reinstall won't hurt) - needed for digitalocean and possibly others
 apt install sudo fail2ban curl -y
 apt install speedtest-cli dnsutils htop -y # Optional for testing/monitoring purposes
 echo "Configuring security measures"
@@ -144,7 +145,8 @@ fi
 echo "Setting up wireguard"
 sed -i "1a intipaddr=\"$intipaddr\"\nintipaddr6="$intipaddr6"\nwgport=$wgport" $dir/Wireguard_After.bash
 sleep 1
-apt install wireguard qrencode -y
+apt install qrencode -y
+apt install -t unstable wireguard -y
 umask 077
 cd /etc/wireguard
 

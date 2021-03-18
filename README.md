@@ -9,6 +9,10 @@ Sets up your very own VPN server with my configs
 * Can change some of the variables in the beginning (keep all but devs if you're unsure):
   * pihole_skip_os_check - set to true to skip the OS check during pihole install. Required for armbian and probably some other SBC distros
   * devs - name for each wireguard client/device conf you want to make
+  * ipaddr/6 - the actual ipv4 and ipv6 addresses
+    * What they're set to is fine for a default install - but not if you have internal ips set (such as digitalocean)
+    * Run `hostname -I` to see your ip addresses. ipv4 is the first one in all cases I've seen, ip6 is often last and that's how I have them set. Change if needed:
+      * Change the number (or 'NF') in the 'print' part of the variable to the number that the address is (for example, change to 4 if it's the 4th entry listed). Note that 'NF' means last entry
   * initipaddr/initipaddr6 - ipv4/6 internal address you want to use for wireguard
   * sshport - ssh port
   * wgport - wireguard port
@@ -66,10 +70,13 @@ Sets up your very own VPN server with my configs
 
 ## How to Install
 * ssh into your server as root
-* Place all of the files in this repo in your vps server
+* `apt update && apt upgrade -y && apt install git -y`
+* `git clone https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
+* `cd Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
+* Edit VPS_Setup.bash variables as described above
 * `chmod +x VPS_Setup.bash `
 * `bash VPS_Setup.bash`
-  * Follow script instructions - will require several reboots
+  * Follow script instructions
 * Setup your lists in pi-hole
 
 ## Updating
