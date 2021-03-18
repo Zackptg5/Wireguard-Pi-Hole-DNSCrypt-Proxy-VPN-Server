@@ -145,8 +145,7 @@ fi
 echo "Setting up wireguard"
 sed -i "1a intipaddr=\"$intipaddr\"\nintipaddr6="$intipaddr6"\nwgport=$wgport" $dir/Wireguard_After.bash
 sleep 1
-apt install qrencode -y
-apt install -t unstable wireguard -y
+apt install wireguard qrencode -y
 umask 077
 cd /etc/wireguard
 
