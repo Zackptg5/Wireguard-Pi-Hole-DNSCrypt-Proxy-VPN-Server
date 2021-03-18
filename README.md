@@ -70,7 +70,7 @@ Sets up your very own VPN server with my configs
 
 ## How to Install
 * ssh into your server as root
-* `apt update && apt upgrade -y && apt install git -y`
+* `apt update && apt upgrade -y && apt install git -y && reboot`
 * `git clone https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
 * `cd Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
 * Edit VPS_Setup.bash variables as described above

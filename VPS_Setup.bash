@@ -28,7 +28,7 @@ echo "Updating and installing packages"
 echo "Keep installed copies if asked!"
 sleep 3
 apt update && apt upgrade -y
-apt install linux-headers-$(uname -r) -y # Install kernel headers if not installed (reinstall won't hurt) - needed for digitalocean and possibly others
+apt install linux-headers-$(uname -r | sed 's/[0-9.-]*//') -y # Install kernel headers if not installed (reinstall won't hurt) - needed for digitalocean and possibly others
 apt install sudo fail2ban curl -y
 apt install speedtest-cli dnsutils htop -y # Optional for testing/monitoring purposes
 echo "Configuring security measures"
