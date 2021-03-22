@@ -28,8 +28,7 @@ for i in $devs; do
 # $i
 PublicKey = $(<$i-pubkey)
 PresharedKey = $(<preshared-key)
-AllowedIPs = $intipaddr.$count/32, $intipaddr6::$count/128
-PersistentkeepAlive = 60" >> wg0.conf
+AllowedIPs = $intipaddr.$count/32, $intipaddr6::$count/128" >> wg0.conf
 
   echo "[Interface]
 Address = $intipaddr.$count/24, $intipaddr6::$count/64
