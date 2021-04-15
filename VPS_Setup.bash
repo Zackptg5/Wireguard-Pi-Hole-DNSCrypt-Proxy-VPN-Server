@@ -239,7 +239,7 @@ if [ "$searx" ]; then
   sed -i "/image_proxy/a\ \nengines:\n  - name : wikipedia\n    engine : wikipedia\n    shortcut : wp\n    base_url : 'https://{language}.wikipedia.org/'\n    disabled : true\n  - name : bing\n    engine : bing\n    shortcut : bi\n    disabled : true" /etc/searx/settings.yml
   sed -i '/image_proxy/a\ \nenabled_plugins:\n  - "Open Access DOI rewrite"\n  - "Hash plugin"\n  - "HTTPS rewrite"\n  - "Infinite scroll"\n  - "Self Informations"\n  - "Search on category select"\n  - "Tracker URL remover"' /etc/searx/settings.yml
   # Set sci-hub to default, fix link (tw is dead)
-  sed -i -e "s/sci-hub.tw/sci-hub.do/g" -e "s|default_doi_resolver :.*|default_doi_resolver : 'sci-hub.do'|" /usr/local/searx/searx-src/searx/settings.yml
+  sed -i "/image_proxy/a\ \ndoi_resolvers :\n  sci-hub.do : 'http://sci-hub.do/'\n\ndefault_doi_resolver : 'sci-hub.do'" /etc/searx/settings.yml
   systemctl restart uwsgi
 fi
 # Add custom domain name as redirect for main page
