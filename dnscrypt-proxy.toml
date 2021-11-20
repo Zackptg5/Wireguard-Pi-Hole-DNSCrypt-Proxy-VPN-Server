@@ -31,16 +31,17 @@
 
 # Use all the servers - specify anon servers that don't have a corresponding server
 # Eastern USA/CA
-server_names = ['zackptg5-us-il-ipv4', 'zackptg5-us-il-ipv6', 'ventricle.us', 'dnscrypt.ca-1', 'dnscrypt.ca-1-ipv6', 'dnscrypt.ca-2', 'dnscrypt.ca-2-ipv6', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-dns', 'ev-canada', 'freetsa.org-ipv4', 'freetsa.org-ipv6']
-# UK
-# server_names = ['v.dnscrypt.uk-ipv4', 'v.dnscrypt.uk-ipv6', 'dnscrypt.uk-ipv4', 'dnscrypt.uk-ipv6', 'faelix-uk-ipv4', 'faelix-uk-ipv6', 'moulticast-uk-ipv4', 'meganerd', 'meganerd-ipv6', 'moulticast-fr-ipv4', 'scaleway-fr', 'scaleway-fr-ipv6', 'scaleway-ams', 'scaleway-ams-ipv6', 'acsacsar-ams-ipv4', 'acsacsar-ams-ipv6']
+server_names = ['zackptg5-us-il-ipv4', 'zackptg5-us-il-ipv6', 'zackptg5-us-pit-ipv4', 'zackptg5-us-pit-ipv6', 'dnscrypt.ca-1', 'dnscrypt.ca-2', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-ns1', 'plan9-ns2', 'freetsa.org-ipv6']
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
 ## listen_addresses = ['127.0.0.1:53', '[::1]:53']
+##
+## To listen to all IPv4 addresses, use `listen_addresses = ['0.0.0.0:53']`
+## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 
 # Empty listen_addresses to use systemd socket activation
-listen_addresses = []
+listen_addresses = ['127.0.0.1:<port>', '[::1]:<port>']
 
 
 ## Maximum number of simultaneous client connections to accept
@@ -56,7 +57,7 @@ max_clients = 1000
 # user_name = 'nobody'
 
 
-## Require servers (from static + remote sources) to satisfy specific properties
+## Require servers (from remote sources) to satisfy specific properties
 
 # Use servers reachable over IPv4
 ipv4_servers = true
@@ -69,6 +70,9 @@ dnscrypt_servers = true
 
 # Use servers implementing the DNS-over-HTTPS protocol
 doh_servers = false
+
+# Use servers implementing the Oblivious DoH protocol
+odoh_servers = false
 
 
 ## Require servers defined by remote sources to satisfy specific properties
@@ -161,7 +165,7 @@ keepalive = 30
 ## This file is different from other log files, and will not be
 ## automatically rotated by the application.
 
-log_file = '/var/log/dnscrypt-proxy/app.log'
+log_file = 'dnscrypt-proxy.log'
 
 
 ## When using a log file, only keep logs from the most recent launch.
@@ -209,30 +213,40 @@ cert_refresh_delay = 240
 # tls_cipher_suite = [52392, 49199]
 
 
-## Fallback resolvers
+## Bootstrap resolvers
+##
 ## These are normal, non-encrypted DNS resolvers, that will be only used
-## for one-shot queries when retrieving the initial resolvers list, and
-## only if the system DNS configuration doesn't work.
+## for one-shot queries when retrieving the initial resolvers list and if
+## the system DNS configuration doesn't work.
 ##
-## No user application queries will ever be leaked through these resolvers,
-## and they will not be used after IP addresses of resolvers URLs have been found.
-## They will never be used if lists have already been cached, and if stamps
-## don't include host names without IP addresses.
+## No user queries will ever be leaked through these resolvers, and they will
+## not be used after IP addresses of DoH resolvers have been found (if you are
+## using DoH).
 ##
-## They will not be used if the configured system DNS works.
+## They will never be used if lists have already been cached, and if the stamps
+## of the configured servers already include IP addresses (which is the case for
+## most of DoH servers, and for all DNSCrypt servers and relays).
+##
+## They will not be used if the configured system DNS works, or after the
+## proxy already has at least one usable secure resolver.
+##
 ## Resolvers supporting DNSSEC are recommended, and, if you are using
-## DoH, fallback resolvers should ideally be operated by a different entity than
-## the DoH servers you will be using, especially if you have IPv6 enabled.
+## DoH, bootstrap resolvers should ideally be operated by a different entity
+## than the DoH servers you will be using, especially if you have IPv6 enabled.
 ##
-## People in China may need to use 114.114.114.114:53 here.
-## Other popular options include 8.8.8.8 and 1.1.1.1.
+## People in China may want to use 114.114.114.114:53 here.
+## Other popular options include 8.8.8.8, 9.9.9.9 and 1.1.1.1.
 ##
 ## If more than one resolver is specified, they will be tried in sequence.
+##
+## TL;DR: put valid standard resolver addresses here. Your actual queries will
+## not be sent there. If you're using DNSCrypt or Anonymized DNS and your
+## lists are up to date, these resolvers will not even be used.
 
-fallback_resolvers = ['1.1.1.1:53', '9.9.9.9:53']
+bootstrap_resolvers = ['1.1.1.1:53', '9.9.9.9:53']
 
 
-## Always use the fallback resolver before the system DNS settings.
+## Always use the bootstrap resolver before the system DNS settings.
 
 ignore_system_dns = true
 
@@ -319,7 +333,7 @@ block_undelegated = true
 ## TTL for synthetic responses sent when a request has been blocked (due to
 ## IPv6 or blocklists).
 
-reject_ttl = 600
+reject_ttl = 10
 
 
 
@@ -442,7 +456,7 @@ cache_neg_max_ttl = 600
   ## Path to the query log file (absolute, or relative to the same directory as the config file)
   ## Can be set to /dev/stdout in order to log to the standard output.
 
-  # file = '/var/log/dnscrypt-proxy/query.log'
+  # file = 'query.log'
 
 
   ## Query log format (currently supported: tsv and ltsv)
@@ -468,7 +482,7 @@ cache_neg_max_ttl = 600
 
   ## Path to the query log file (absolute, or relative to the same directory as the config file)
 
-  file = '/var/log/dnscrypt-proxy/nx.log'
+  file = 'nx.log'
 
 
   ## Query log format (currently supported: tsv and ltsv)
@@ -478,7 +492,7 @@ cache_neg_max_ttl = 600
 
 
 ######################################################
-#        Pattern-based blocking (blocklists)        #
+#        Pattern-based blocking (blocklists)         #
 ######################################################
 
 ## Blocklists are made of one pattern per line. Example of valid patterns:
@@ -541,7 +555,7 @@ cache_neg_max_ttl = 600
 
 
 ######################################################
-#   Pattern-based allow lists (blocklists bypass)   #
+#   Pattern-based allow lists (blocklists bypass)    #
 ######################################################
 
 ## Allowlists support the same patterns as blocklists
@@ -672,21 +686,36 @@ cache_neg_max_ttl = 600
   refresh_delay = 72
   prefix = ''
 
-  ## Quad9 over DNSCrypt - https://quad9.net/
+  ## ODoH (Oblivious DoH) servers and relays
+
+  # [sources.'odoh-servers']
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-servers.md']
+  #   cache_file = 'odoh-servers.md'
+  #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #   refresh_delay = 24
+  #   prefix = ''
+  # [sources.'odoh-relays']
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-relays.md']
+  #   cache_file = 'odoh-relays.md'
+  #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #   refresh_delay = 24
+  #   prefix = ''
+
+  ## Quad9
 
   # [sources.quad9-resolvers]
-  # urls = ['https://www.quad9.net/quad9-resolvers.md']
-  # minisign_key = 'RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN'
-  # cache_file = 'quad9-resolvers.md'
-  # prefix = 'quad9-'
+  #   urls = ['https://www.quad9.net/quad9-resolvers.md']
+  #   minisign_key = 'RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN'
+  #   cache_file = 'quad9-resolvers.md'
+  #   prefix = 'quad9-'
 
   ## Another example source, with resolvers censoring some websites not appropriate for children
   ## This is a subset of the `public-resolvers` list, so enabling both is useless
 
   #  [sources.'parental-control']
-  #  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://download.dnscrypt.net/resolvers-list/v3/parental-control.md']
-  #  cache_file = 'parental-control.md'
-  #  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://download.dnscrypt.net/resolvers-list/v3/parental-control.md']
+  #    cache_file = 'parental-control.md'
+  #    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
 
   
 
@@ -697,7 +726,7 @@ cache_neg_max_ttl = 600
 [broken_implementations]
 
 # Cisco servers currently cannot handle queries larger than 1472 bytes, and don't
-# truncate reponses larger than questions as expected by the DNSCrypt protocol.
+# truncate responses larger than questions as expected by the DNSCrypt protocol.
 # This prevents large responses from being received over UDP and over relays.
 #
 # Older versions of the `dnsdist` server software had a bug with queries larger
@@ -725,7 +754,7 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 
 #
 # creds = [
-#    { server_name='myserver', client_cert='client.crt', client_key='client.key' }
+#    { server_name='*', client_cert='client.crt', client_key='client.key' }
 # ]
 
 
@@ -769,6 +798,7 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 ### Eastern USA/CA
 ## Servers:
 # zackptg5-us-il-ip4/6 - Chicago, Illinois, US
+# zackptg5-us-pit-ip4/6 - Pittsburgh, Pennsylvania, US
 # plan9-dns - New Jersey, US
 # ventricle.us - New Jersey, US
 # dnscrypt.ca-2/ipv6 - Toronto, CA
@@ -778,66 +808,28 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 # moulticast-ca-ipv4/6 - CA
 ## Anon Relays:
 # anon-zackptg5-us-il-ip4/6 - Chicago, Illinois, US
+# anon-zackptg5-us-pit-ip4/6 - Pittsburgh, Pennsylvania, US
 # anon-plan9-dns - New Jersey, US
 # anon-cs-usnc - Charlotte, North Carolina, US
 # anon-cs-ustx - Dallas, Texas, US
 # anon-cs-usca - Los Angeles, California, US
 # anon-cs-usnv - Las Vegas, Nevada, US
-## The zackptg5 relays are mine and are all on the same server. If you want to change the anon relay to another one cause you don't trust me, I won't hold it against you ;)
 routes = [
-  { server_name='zackptg5-us-il-ipv4', via=['anon-zackptg5-us-il-ipv4'] },
-  { server_name='zackptg5-us-il-ipv6', via=['anon-zackptg5-us-il-ipv6'] },
-  { server_name='plan9-dns', via=['anon-cs-ustx', 'anon-cs-usnc'] },
-  { server_name='ventricle.us', via=['anon-plan9-dns', 'anon-cs-usnc'] },
-  { server_name='dnscrypt.ca-1', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-1-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='ev-canada', via=['anon-plan9-dns', 'anon-cs-usnc'] },
-  { server_name='moulticast-ca-ipv4', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='moulticast-ca-ipv6', via=['anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='freetsa.org-ipv4', via=['anon-cs-usnv', 'anon-cs-usca'] },
-  { server_name='freetsa.org-ipv6', via=['anon-cs-usnv', 'anon-cs-usca'] }
+  { server_name='zackptg5-us-il-ipv4', via=['anon-cs-il, anon-cs-il2', 'anon-plan9-dns'] },
+  { server_name='zackptg5-us-il-ipv6', via=['anon-cs-il, anon-cs-il2', 'anon-plan9-dns'] },
+  { server_name='zackptg5-us-pit-ipv4', via=['anon-plan9-dns', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
+  { server_name='zackptg5-us-pit-ipv6', via=['anon-plan9-dns', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
+  { server_name='plan9-ns1', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
+  { server_name='plan9-ns2', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
+  { server_name='dnscrypt.ca-1', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-1-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-2', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
+  { server_name='dnscrypt.ca-2-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
+  { server_name='ev-canada', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-plan9-dns'] },
+  { server_name='moulticast-ca-ipv4', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='moulticast-ca-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-ustx', 'anon-plan9-dns'] },
+  { server_name='freetsa.org-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-usnv', 'anon-cs-usca'] }
 ]
-### UK
-## Servers:
-# v.dnscrypt.uk-ipv4/v6 - London, uk
-# dnscrypt.uk-ipv4/6 - London, UK
-# faelix-uk-ipv4/6 - Buxton, UK
-# moulticast-uk-ipv4 - London, UK
-# meganerd/ipv6 - Amsterdam, Netherlands
-# moulticast-fr-ipv4 - Paris, France
-# scaleway-fr/ipv6 - Paris, France
-# scaleway-ams/ipv6 - Amsterdam, Netherlands
-# acsacsar-ams-ipv4/6 - Amsterdam. Netherlands
-## Anon Relays:
-# anon-v.dnscrypt.uk-ipv4/6 - London, uk
-# anon-dnscrypt.uk-ipv4/6 -London, uk
-# anon-kama - France (run by jedisct1)
-# anon-scaleway - France (run by jedisct1)
-# anon-cs-fr/2 - Paris, France
-# anon-acsacsar-ams-ipv4/ipv6 - Amsterdam, Netherlands
-# anon-meganerd/ipv6 - Amsterdam, Netherlands
-# anon-scaleway-ams/ipv6 - Amsterdam, Netherlands (run by jedisct1)
-# routes = [
-#   { server_name='v.dnscrypt.uk-ipv4', via=['anon-scaleway-ams', 'anon-acsacsar-ams-ipv4'] },
-#   { server_name='v.dnscrypt.uk-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-acsacsar-ams-ipv6'] },
-#   { server_name='dnscrypt.uk-ipv4', via=['anon-scaleway-ams', 'anon-acsacsar-ams-ipv4'] },
-#   { server_name='dnscrypt.uk-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-acsacsar-ams-ipv6'] },
-#   { server_name='faelix-uk-ipv4', via=['anon-v.dnscrypt.uk-ipv4', 'anon-dnscrypt.uk-ipv4'] },
-#   { server_name='faelix-uk-ipv6', via=['anon-v.dnscrypt.uk-ipv6', 'anon-dnscrypt.uk-ipv6'] },
-#   { server_name='moulticast-uk-ipv4', via=['anon-v.dnscrypt.uk-ipv4', 'anon-dnscrypt.uk-ipv4'] },
-#   { server_name='moulticast-fr-ipv4', via=['anon-kama', 'anon-scaleway'] },
-#   { server_name='scaleway-fr', via=['anon-kama', 'anon-cs-fr'] },
-#   { server_name='scaleway-fr-ipv6', via=['anon-cs-fr', 'anon-cs-fr2'] },
-#   { server_name='meganerd', via=['anon-scaleway-ams', 'anon-acsacsar-ams-ipv4'] },
-#   { server_name='meganerd-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-acsacsar-ams-ipv6'] },
-#   { server_name='scaleway-ams', via=['anon-acsacsar-ams-ipv4', 'anon-meganerd'] },
-#   { server_name='scaleway-ams-ipv6', via=['anon-acsacsar-ams-ipv6', 'anon-meganerd-ipv6'] },
-#   { server_name='acsacsar-ams-ipv4', via=['anon-scaleway-ams', 'anon-meganerd'] },
-#   { server_name='acsacsar-ams-ipv6', via=['anon-scaleway-ams-ipv6', 'anon-meganerd-ipv6'] }
-# ]
-
 
 # Skip resolvers incompatible with anonymization instead of using them directly
 
@@ -896,3 +888,12 @@ skip_incompatible = true
 
   # [static.'myserver']
   # stamp = 'sdns://AQcAAAAAAAAAAAAQMi5kbnNjcnlwdC1jZXJ0Lg'
+  # In case one my servers gets removed again, been having issues with the pit one specifically
+  [static.'zackptg5-us-pit-ipv4']
+  stamp = 'sdns://AQcAAAAAAAAAETc0LjExOC4xNDEuNDc6NDQyILLrUp55NwetKjM1XaPs19NIKDIbD1w0K-lCK33_gKcgHzIuZG5zY3J5cHQtY2VydC56YWNrcHRnNS11cy1waXQ'
+  [static.'zacktpg5-us-pit-ipv6']
+  stamp = 'sdns://AQcAAAAAAAAAJ1syNjA3OmZkYzA6MjowOmY4MTY6M2VmZjpmZTMyOmM3YjRdOjQ0MiCy61KeeTcHrSozNV2j7NfTSCgyGw9cNCvpQit9_4CnIB8yLmRuc2NyeXB0LWNlcnQuemFja3B0ZzUtdXMtcGl0'
+  [static.'zackptg5-us-il-ipv4']
+  stamp = 'sdns://AQcAAAAAAAAADTEzNy4yMjAuNTkuNjIgTNMjCh27ODMeT_zUDR4yV_L9iWnqXTyyMuyLeAQW0eceMi5kbnNjcnlwdC1jZXJ0LnphY2twdGc1LXVzLWls'
+  [static.'zacktpg5-us-il-ipv6']
+  stamp = 'sdns://AQcAAAAAAAAAKFsyMDAxOjE5ZjA6NWMwMToxNDdlOjU0MDA6M2ZmOmZlMmE6M2IxZl0gTNMjCh27ODMeT_zUDR4yV_L9iWnqXTyyMuyLeAQW0eceMi5kbnNjcnlwdC1jZXJ0LnphY2twdGc1LXVzLWls'

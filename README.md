@@ -1,9 +1,8 @@
-# Wireguard-Pi-Hole-Cloudflared/Unbound/DNSCrypt-VPN-Server
+# Wireguard-Pi-Hole-DNSCrypt-Proxy-VPN-Server
 Sets up your very own VPN server with my configs
 
 ## Requirements
-* Debian 10 (newer will probably work too - check if you need unstable repos for latest wireguard and dnscrypt-proxy)
-  * Maybe Ubuntu - haven't tested it myself so you're on your own there - dnscrypt-proxy is out of date, even in the PPA last I checked
+* Debian 11.x
 
 ## Options
 * Can change some of the variables in the beginning (keep all but devs if you're unsure):
@@ -13,15 +12,10 @@ Sets up your very own VPN server with my configs
     * What they're set to is fine for a default install - but not if you have internal ips set (such as digitalocean)
     * Run `hostname -I` to see your ip addresses. ipv4 is the first one in all cases I've seen, ip6 is often last and that's how I have them set. Change if needed:
       * Change the number (or 'NF') in the 'print' part of the variable to the number that the address is (for example, change to 4 if it's the 4th entry listed). Note that 'NF' means last entry
-  * initipaddr/initipaddr6 - ipv4/6 internal address you want to use for wireguard
+  * intip/intip6 - ipv4/6 internal address you want to use for wireguard
   * sshport - ssh port
   * wgport - wireguard port
-  * cfrport - cloudflared port (optional)
-  * uport - unbound port (optional)
-  * dppport - dnscrypt-proxy port (optional)
-  * searx - install searx (optional)
-  * custdomain - name of custom domain you want redirected to main pihole landing page (optional)
-* Can change the unbound config (pi-hole.conf) how you want, don't change anything related to ips and ports though
+  * dnsport - dnscrypt-proxy port (optional)
 * Can change dnscrypt-proxy.toml how you want, don't change listen_addresses
   * I recommend you change the servers and anonymized relays to the fastest for your location
   * Alternatively, comment out 'server_names' and replace the anon routes with: `{ server_name='*', via=['anon-relay-1', 'anon-relay-2'] }` setting the anon relays to whichever you like (closest to your location would be most optimal)
@@ -32,27 +26,18 @@ Sets up your very own VPN server with my configs
 * Installs fail2ban and sets up a couple rules for security
 * Wireguard - vpn tunnel
 * Pi-hole - ad blocker
-* Cloudflared - DNS-Over-HTTPS proxy - encrypts dns requests - optional
-* Unbound - local recursive/caching dns resolver with dnssec support - optional
-* DNSCrypt-proxy - caches, encrypts, and annoymizes dns requests - optional
-* Searx - metasearch engine - optional
-
-## Configurations:
-* Just Pi-hole - barebones, pick a dns server in the pihole gui - you need to trust your isp and selected upstream DNS server(s)
-* Pi-hole + cloudflared - use cloudflare's DOH service - if you trust cloudflare more than your server's ISP
-* Pi-hole + Unbound - increases privacy and uses dnssec - only entity you need to trust is your server's ISP (note that I have it set to use cloudflare but you can remove the forward zone or change this)
-* Pi-hole + unbound + cloudflared
-* Pi-hole + dnscrypt-proxy - use whatever dns servers you want - encrypts + anonymizes requests - you don't need to trust anyone
-* Pi-hole + unbound + dnscrypt-proxy - same as above but with some local dns resolution via unbound - I don't see much point in this but it's here if you want it
+* DNSCrypt-proxy - caches, encrypts, and annoymizes dns requests
 
 ## Super Simplified and Probably Partly Incorrect How it Works 
-* Device connects to server via wireguard tunnel -> Pi-Hole filters out ads -> Unbound resolves DNS queries that it can (if you chose it) -> DNSCrypt encrypts, authenticates, and annonymizes dns requests being sent out of the server and back
+* Device connects to server via wireguard tunnel -> Pi-Hole filters out ads/crap -> DNSCrypt encrypts, authenticates, and annonymizes dns requests being sent out of the server and back
 
-## Unbound + Dnscrypt-Proxy?
+## Why not Unbound + Dnscrypt-Proxy?
 * DNSSEC/Security: dnscrypt-proxy enforces dnssec/encrypts dns requests and is what communicates with the outside world. Unbound also enforces DNSSEC but since it forwards requests to dnscrypt-proxy, what unbound does here doesn't really matter (dnscrypt-proxy enforces DNSSEC too btw)
 * Privacy: thanks to anonymous relays, dnscrypt-proxy hides your IP so all outgoing dns requests aren't traced back to you. Once again, unbound doesn't really help here and has no equivalent function at the time of me writing this
 * You may want unbound for other reasons and so I made this optional
 * Bascially, the addition of anonymized relays negates the need for unbound
+* [See @jedisct1 comment for my reasoning behind unbound/dnscrypt-proxy setup for security/privacy](https://www.reddit.com/r/privacytoolsIO/comments/98ggn4/unbound_recursive_or_dnscrypt/e4h5sre?utm_source=share&utm_medium=web2x&context=3)
+
 
 ## When should I use PersistentKeepAlive?
 * Based on my limited understanding, only use it for a server and/or client if it's behind a NAT firewall. I was having issues with the wireguard android app and found it to be related to having this enabled when it wasn't necessary
@@ -80,9 +65,7 @@ Sets up your very own VPN server with my configs
 * Setup your lists in pi-hole
 
 ## Updating
-* You may need to force specify the unstable branch for wireguard and dnscrypt-proxy. For example: apt install -t unstable dnscrypt-proxy
-* Whenever you update dnscrypt proxy, you'll need to reapply the [sockets patch](https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server/blob/master/VPS_Setup.bash#L135) 
-* After updating pihole, run the Pihole_After_Update script to reapply patches
+* You may need to force specify the unstable branch for wireguard. For example: apt install -t unstable dnscrypt-proxy
 
 ## To Add More Wireguard Peers After Initial Setup
 * ssh into your server as root
@@ -108,7 +91,11 @@ Sets up your very own VPN server with my configs
 ## DnsCrypt-Proxy Note
 * I have all the anonymized relays set to be on different servers then the resolvers except mine (the zackptg5 ones). Reason being I trust myself to do what it says which is DNSSEC, no filters, no logging. My resolvers and relays are all run on the same server so if you don't feel comfortable with that (and I don't blame you there), you can change the relay to an east cost one like anon-plan9-dns. You'll lose speed but you may gain some peace of mind :)
 
+## What if I have other webservices installed on port 80?
+* You can change pihole port by adding this to /etc/lighttpd/external.conf: `server.port := 8000` where 8000 is the port number you want it to be
+
 ## Other Notes
+* If not using pihole for DHCP, you can remove the labeled ufw firewall rules
 * To see used ports: `lsof -i -P -n`
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
 * The unbound config (pi-hole.conf) is pretty solid I think. Only thing you may want to change is some performance related variables like num-threads. Also note that enabling `auto-trust-anchor-file` prevented unbound service from starting regardless of forwarding or lack there of on my server. 
@@ -116,18 +103,15 @@ Sets up your very own VPN server with my configs
 * I have ipv6 enabled
 
 ## Sources I Found Helpful Setting This All Up
+* [anudeepND - Pihole Whitelist](https://github.com/anudeepND/whitelist)
 * [zzzkeil - Wireguard DNSCrypt Server Setup](https://github.com/zzzkeil/Wireguard-DNScrypt-VPN-Server)
 * [notasausage - Pi-hole Unbound Wireguard Setup](https://github.com/notasausage/pi-hole-unbound-wireguard)
 * [Unofficial Wireguard Docs](https://github.com/pirate/wireguard-docs)
-* [Pi-Hole Unbound Docs](https://docs.pi-hole.net/guides/unbound)
 * [SSH Key Pairing on Debian](https://devconnected.com/how-to-set-up-ssh-keys-on-debian-10-buster)
-* [Unbound DNS Guide](https://calomel.org/unbound_dns.html)
-* [Sample Unbound Config](https://gist.github.com/MatthewVance/5051bf45cfed6e4a2a2ed9bb014bcd72)
-* [Unbound Config Docs](https://nlnetlabs.nl/documentation/unbound/unbound.conf)
 * [Pi-Hole DNSCrypt 2 Docs](https://github.com/pi-hole/pi-hole/wiki/DNSCrypt-2.0)
 * [Anonymized DNS Docs](https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Anonymized-DNS)
 * [Commonly Whitelisted Domains](https://discourse.pi-hole.net/t/commonly-whitelisted-domains/212)
 * [More Commonly Whitelisted Domains](https://github.com/anudeepND/whitelist)
 * [DNS Leak Test](https://dnsleaktest.com)
+* [DNSSEC Test](dnssec.vs.uni-due.de)
 * [IP Leak Test](https://ipleak.net)
-* [See @jedisct1 comment for my reasoning behind unbound/dnscrypt-proxy setup for security/privacy](https://www.reddit.com/r/privacytoolsIO/comments/98ggn4/unbound_recursive_or_dnscrypt/e4h5sre?utm_source=share&utm_medium=web2x&context=3)
