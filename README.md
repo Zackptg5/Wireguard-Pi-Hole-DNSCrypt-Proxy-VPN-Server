@@ -1,7 +1,3 @@
-# Deprecated
-I will no longer be updating this script. As always, feel free to fork/do whatever with this.
-I'll be using a more docker approach with things I actually use only from now on [here](https://github.com/Zackptg5/Wireguard-Pihole-DNSCrypt-Proxy-VPN-Server)
-
 # Wireguard-Pi-Hole-Cloudflared/Unbound/DNSCrypt-VPN-Server
 Sets up your very own VPN server with my configs
 
