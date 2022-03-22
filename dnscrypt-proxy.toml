@@ -31,7 +31,7 @@
 
 # Use all the servers - specify anon servers that don't have a corresponding server
 # Eastern USA/CA
-server_names = ['zackptg5-us-il-ipv4', 'zackptg5-us-il-ipv6', 'zackptg5-us-pit-ipv4', 'zackptg5-us-pit-ipv6', 'dnscrypt.ca-1', 'dnscrypt.ca-2', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-ns1', 'plan9-ns2', 'freetsa.org-ipv6']
+server_names = ['dnscrypt.ca-1', 'dnscrypt.ca-2', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-ns1', 'plan9-ns2', 'freetsa.org-ipv6']
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
