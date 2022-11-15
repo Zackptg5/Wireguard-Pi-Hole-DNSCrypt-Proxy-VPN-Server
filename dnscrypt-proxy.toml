@@ -5,7 +5,6 @@
 #                                            #
 ##############################################
 
-## This is an example configuration file.
 ## You should adjust it to your needs, and save it as "dnscrypt-proxy.toml"
 ##
 ## Online documentation is available here: https://dnscrypt.info/doc
@@ -29,9 +28,8 @@
 ##
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
-# Use all the servers - specify anon servers that don't have a corresponding server
-# Eastern USA/CA
-server_names = ['dnscrypt.ca-1', 'dnscrypt.ca-2', 'moulticast-ca-ipv4', 'moulticast-ca-ipv6', 'plan9-ns1', 'plan9-ns2', 'freetsa.org-ipv6']
+# server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
+
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
@@ -99,6 +97,13 @@ disabled_server_names = []
 force_tcp = false
 
 
+## Enable support for HTTP/3 (DoH3, HTTP over QUIC)
+## Note that, like DNSCrypt but unlike other HTTP versions, this uses
+## UDP and (usually) port 443 instead of TCP.
+
+http3 = false
+
+
 ## SOCKS proxy
 ## Uncomment the following line to route all TCP connections to a local Tor node
 ## Tor doesn't support UDP, so set `force_tcp` to `true` as well.
@@ -130,7 +135,7 @@ keepalive = 30
 ## Multiple networks can be listed; they will be randomly chosen.
 ## These networks don't have to match your actual networks.
 
-# edns_client_subnet = ["0.0.0.0/0", "2001:db8::/32"]
+# edns_client_subnet = ['0.0.0.0/0', '2001:db8::/32']
 
 
 ## Response for blocked queries. Options are `refused`, `hinfo` (default) or
@@ -354,6 +359,8 @@ reject_ttl = 10
 ## Cloaking returns a predefined address for a specific name.
 ## In addition to acting as a HOSTS file, it can also return the IP address
 ## of a different name. It will also do CNAME flattening.
+## If 'cloak_ptr' is set, then PTR (reverse lookups) are enabled
+## for cloaking rules that do not contain wild cards.
 ##
 ## See the `example-cloaking-rules.txt` file for an example
 
@@ -362,6 +369,7 @@ reject_ttl = 10
 ## TTL used when serving entries in cloaking-rules.txt
 
 # cloak_ttl = 600
+# cloak_ptr = false
 
 
 
@@ -668,40 +676,40 @@ cache_neg_max_ttl = 600
 
 [sources]
 
-   ## An example of a remote source from https://github.com/DNSCrypt/dnscrypt-resolvers
+  ### An example of a remote source from https://github.com/DNSCrypt/dnscrypt-resolvers
 
-  [sources.'public-resolvers']
-  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://download.dnscrypt.net/resolvers-list/v3/public-resolvers.md']
-  cache_file = 'public-resolvers.md'
-  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-  refresh_delay = 72
-  prefix = ''
+  [sources.public-resolvers]
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/public-resolvers.md']
+    cache_file = 'public-resolvers.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
 
-  ## Anonymized DNS relays
+  ### Anonymized DNS relays
 
-  [sources.'relays']
-  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/relays.md']
-  cache_file = 'relays.md'
-  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-  refresh_delay = 72
-  prefix = ''
+  [sources.relays]
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md']
+    cache_file = 'relays.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
 
-  ## ODoH (Oblivious DoH) servers and relays
+  ### ODoH (Oblivious DoH) servers and relays
 
-  # [sources.'odoh-servers']
-  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-servers.md']
+  # [sources.odoh-servers]
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-servers.md']
   #   cache_file = 'odoh-servers.md'
   #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
   #   refresh_delay = 24
   #   prefix = ''
-  # [sources.'odoh-relays']
-  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-relays.md']
+  # [sources.odoh-relays]
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-relays.md']
   #   cache_file = 'odoh-relays.md'
   #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
   #   refresh_delay = 24
   #   prefix = ''
 
-  ## Quad9
+  ### Quad9
 
   # [sources.quad9-resolvers]
   #   urls = ['https://www.quad9.net/quad9-resolvers.md']
@@ -709,15 +717,15 @@ cache_neg_max_ttl = 600
   #   cache_file = 'quad9-resolvers.md'
   #   prefix = 'quad9-'
 
-  ## Another example source, with resolvers censoring some websites not appropriate for children
-  ## This is a subset of the `public-resolvers` list, so enabling both is useless
+  ### Another example source, with resolvers censoring some websites not appropriate for children
+  ### This is a subset of the `public-resolvers` list, so enabling both is useless.
 
-  #  [sources.'parental-control']
-  #    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://download.dnscrypt.net/resolvers-list/v3/parental-control.md']
-  #    cache_file = 'parental-control.md'
-  #    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  # [sources.parental-control]
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md']
+  #   cache_file = 'parental-control.md'
+  #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
 
-  
+
 
 #########################################
 #        Servers with known bugs        #
@@ -725,16 +733,16 @@ cache_neg_max_ttl = 600
 
 [broken_implementations]
 
-# Cisco servers currently cannot handle queries larger than 1472 bytes, and don't
-# truncate responses larger than questions as expected by the DNSCrypt protocol.
-# This prevents large responses from being received over UDP and over relays.
-#
-# Older versions of the `dnsdist` server software had a bug with queries larger
-# than 1500 bytes. This is fixed since `dnsdist` version 1.5.0, but
-# some server may still run an outdated version.
-#
-# The list below enables workarounds to make non-relayed usage more reliable
-# until the servers are fixed.
+## Cisco servers currently cannot handle queries larger than 1472 bytes, and don't
+## truncate responses larger than questions as expected by the DNSCrypt protocol.
+## This prevents large responses from being received over UDP and over relays.
+##
+## Older versions of the `dnsdist` server software had a bug with queries larger
+## than 1500 bytes. This is fixed since `dnsdist` version 1.5.0, but
+## some server may still run an outdated version.
+##
+## The list below enables workarounds to make non-relayed usage more reliable
+## until the servers are fixed.
 
 fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familyshield-ipv6', 'cleanbrowsing-adult', 'cleanbrowsing-adult-ipv6', 'cleanbrowsing-family', 'cleanbrowsing-family-ipv6', 'cleanbrowsing-security', 'cleanbrowsing-security-ipv6']
 
@@ -744,15 +752,14 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 #        Certificate-based client authentication for DoH        #
 #################################################################
 
-# Use a X509 certificate to authenticate yourself when connecting to DoH servers.
-# This is only useful if you are operating your own, private DoH server(s).
-# 'creds' maps servers to certificates, and supports multiple entries.
-# If you are not using the standard root CA, an optional "root_ca"
-# property set to the path to a root CRT file can be added to a server entry.
+## Use a X509 certificate to authenticate yourself when connecting to DoH servers.
+## This is only useful if you are operating your own, private DoH server(s).
+## 'creds' maps servers to certificates, and supports multiple entries.
+## If you are not using the standard root CA, an optional "root_ca"
+## property set to the path to a root CRT file can be added to a server entry.
 
 [doh_client_x509_auth]
 
-#
 # creds = [
 #    { server_name='*', client_cert='client.crt', client_key='client.key' }
 # ]
@@ -764,6 +771,7 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 ################################
 
 [anonymized_dns]
+
 
 ## Routes are indirect ways to reach DNSCrypt servers.
 ##
@@ -794,41 +802,13 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 ## select (relay,server) pairs that work well and fit your own criteria (close by or
 ## in different countries, operated by different entities, on distinct ISPs...)
 
-#### Optimzied for speed but without overlapping locations
-### Eastern USA/CA
-## Servers:
-# zackptg5-us-il-ip4/6 - Chicago, Illinois, US
-# zackptg5-us-pit-ip4/6 - Pittsburgh, Pennsylvania, US
-# plan9-dns - New Jersey, US
-# ventricle.us - New Jersey, US
-# dnscrypt.ca-2/ipv6 - Toronto, CA
-# dnscrypt.ca-1/ipv6 - Montreal, CA
-# ev-canada - Vancouver, CA
-# freetsa.org-ipv4/6 - California, US
-# moulticast-ca-ipv4/6 - CA
-## Anon Relays:
-# anon-zackptg5-us-il-ip4/6 - Chicago, Illinois, US
-# anon-zackptg5-us-pit-ip4/6 - Pittsburgh, Pennsylvania, US
-# anon-plan9-dns - New Jersey, US
-# anon-cs-usnc - Charlotte, North Carolina, US
-# anon-cs-ustx - Dallas, Texas, US
-# anon-cs-usca - Los Angeles, California, US
-# anon-cs-usnv - Las Vegas, Nevada, US
+# routes = [
+#    { server_name='example-server-1', via=['anon-example-1', 'anon-example-2'] },
+#    { server_name='example-server-2', via=['sdns://gRIxMzcuNzQuMjIzLjIzNDo0NDM'] }
+# ]
+
 routes = [
-  { server_name='zackptg5-us-il-ipv4', via=['anon-cs-il, anon-cs-il2', 'anon-plan9-dns'] },
-  { server_name='zackptg5-us-il-ipv6', via=['anon-cs-il, anon-cs-il2', 'anon-plan9-dns'] },
-  { server_name='zackptg5-us-pit-ipv4', via=['anon-plan9-dns', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
-  { server_name='zackptg5-us-pit-ipv6', via=['anon-plan9-dns', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
-  { server_name='plan9-ns1', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
-  { server_name='plan9-ns2', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-cs-nyc1', 'anon-cs-nyc2'] },
-  { server_name='dnscrypt.ca-1', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-1-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
-  { server_name='dnscrypt.ca-2-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-plan9-dns'] },
-  { server_name='ev-canada', via=['anon-zackptg5-us-pit-ipv4', 'anon-zackptg5-us-pit-ipv6', 'anon-plan9-dns'] },
-  { server_name='moulticast-ca-ipv4', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='moulticast-ca-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-ustx', 'anon-plan9-dns'] },
-  { server_name='freetsa.org-ipv6', via=['anon-zackptg5-us-il-ipv4', 'anon-zackptg5-us-il-ipv6', 'anon-cs-usnv', 'anon-cs-usca'] }
+  { server_name='*', via=['*'] }
 ]
 
 # Skip resolvers incompatible with anonymization instead of using them directly
@@ -848,6 +828,7 @@ skip_incompatible = true
 #            DNS64            #
 ###############################
 
+
 ## DNS64 is a mechanism for synthesizing AAAA records from A records.
 ## It is used with an IPv6/IPv4 translator to enable client-server
 ## communication between an IPv6-only client and an IPv4-only server,
@@ -866,13 +847,15 @@ skip_incompatible = true
 
 [dns64]
 
-## (Option 1) Static prefix(es) as Pref64::/n CIDRs.
+## Static prefix(es) as Pref64::/n CIDRs
+
 # prefix = ['64:ff9b::/96']
 
-## (Option 2) DNS64-enabled resolver(s) to discover Pref64::/n CIDRs.
+## DNS64-enabled resolver(s) to discover Pref64::/n CIDRs
 ## These resolvers are used to query for Well-Known IPv4-only Name (WKN) "ipv4only.arpa." to discover only.
 ## Set with your ISP's resolvers in case of custom prefixes (other than Well-Known Prefix 64:ff9b::/96).
 ## IMPORTANT: Default resolvers listed below support Well-Known Prefix 64:ff9b::/96 only.
+
 # resolver = ['[2606:4700:4700::64]:53', '[2001:4860:4860::64]:53']
 
 
@@ -888,12 +871,3 @@ skip_incompatible = true
 
   # [static.'myserver']
   # stamp = 'sdns://AQcAAAAAAAAAAAAQMi5kbnNjcnlwdC1jZXJ0Lg'
-  # In case one my servers gets removed again, been having issues with the pit one specifically
-  [static.'zackptg5-us-pit-ipv4']
-  stamp = 'sdns://AQcAAAAAAAAAETc0LjExOC4xNDEuNDc6NDQyILLrUp55NwetKjM1XaPs19NIKDIbD1w0K-lCK33_gKcgHzIuZG5zY3J5cHQtY2VydC56YWNrcHRnNS11cy1waXQ'
-  [static.'zackptg5-us-pit-ipv6']
-  stamp = 'sdns://AQcAAAAAAAAAJ1syNjA3OmZkYzA6MjowOmY4MTY6M2VmZjpmZTMyOmM3YjRdOjQ0MiCy61KeeTcHrSozNV2j7NfTSCgyGw9cNCvpQit9_4CnIB8yLmRuc2NyeXB0LWNlcnQuemFja3B0ZzUtdXMtcGl0'
-  [static.'zackptg5-us-il-ipv4']
-  stamp = 'sdns://AQcAAAAAAAAADTEzNy4yMjAuNTkuNjIgTNMjCh27ODMeT_zUDR4yV_L9iWnqXTyyMuyLeAQW0eceMi5kbnNjcnlwdC1jZXJ0LnphY2twdGc1LXVzLWls'
-  [static.'zackptg5-us-il-ipv6']
-  stamp = 'sdns://AQcAAAAAAAAAKFsyMDAxOjE5ZjA6NWMwMToxNDdlOjU0MDA6M2ZmOmZlMmE6M2IxZl0gTNMjCh27ODMeT_zUDR4yV_L9iWnqXTyyMuyLeAQW0eceMi5kbnNjcnlwdC1jZXJ0LnphY2twdGc1LXVzLWls'

@@ -34,7 +34,6 @@ Sets up your very own VPN server with my configs
 ## Why not Unbound + Dnscrypt-Proxy?
 * DNSSEC/Security: dnscrypt-proxy enforces dnssec/encrypts dns requests and is what communicates with the outside world. Unbound also enforces DNSSEC but since it forwards requests to dnscrypt-proxy, what unbound does here doesn't really matter (dnscrypt-proxy enforces DNSSEC too btw)
 * Privacy: thanks to anonymous relays, dnscrypt-proxy hides your IP so all outgoing dns requests aren't traced back to you. Once again, unbound doesn't really help here and has no equivalent function at the time of me writing this
-* You may want unbound for other reasons and so I made this optional
 * Bascially, the addition of anonymized relays negates the need for unbound
 * [See @jedisct1 comment for my reasoning behind unbound/dnscrypt-proxy setup for security/privacy](https://www.reddit.com/r/privacytoolsIO/comments/98ggn4/unbound_recursive_or_dnscrypt/e4h5sre?utm_source=share&utm_medium=web2x&context=3)
 
@@ -56,13 +55,14 @@ Sets up your very own VPN server with my configs
 ## How to Install
 * ssh into your server as root
 * `apt update && apt upgrade -y && apt install git -y && reboot`
-* `git clone https://github.com/Zackptg5/Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
-* `cd Wireguard-Pi-Hole-Cloudflared-Unbound-DNSCrypt-VPN-Server`
+* `git clone https://github.com/Zackptg5/Wireguard-Pi-Hole-DNSCrypt-VPN-Server`
+* `cd Wireguard-Pi-Hole-DNSCrypt-VPN-Server`
 * Edit VPS_Setup.bash variables as described above
 * `chmod +x VPS_Setup.bash `
 * `bash VPS_Setup.bash`
   * Follow script instructions
 * Setup your lists in pi-hole
+* Change servers and anon relays in dnscrypt-proxy toml based on your region/preferences
 
 ## Updating
 * You may need to force specify the unstable branch for wireguard. For example: apt install -t unstable dnscrypt-proxy
@@ -88,9 +88,6 @@ Sets up your very own VPN server with my configs
 * Note that this is all with openssh. If you wish to use putty, you'll need to convert the key with puttygen or winscp
 * [See more tips for security here](https://github.com/BetterWayElectronics/secure-wireguard-implementation)
 
-## DnsCrypt-Proxy Note
-* I have all the anonymized relays set to be on different servers then the resolvers except mine (the zackptg5 ones). Reason being I trust myself to do what it says which is DNSSEC, no filters, no logging. My resolvers and relays are all run on the same server so if you don't feel comfortable with that (and I don't blame you there), you can change the relay to an east cost one like anon-plan9-dns. You'll lose speed but you may gain some peace of mind :)
-
 ## What if I have other webservices installed on port 80?
 * You can change pihole port by adding this to /etc/lighttpd/external.conf: `server.port := 8000` where 8000 is the port number you want it to be
 
@@ -98,7 +95,6 @@ Sets up your very own VPN server with my configs
 * If not using pihole for DHCP, you can remove the labeled ufw firewall rules
 * To see used ports: `lsof -i -P -n`
 * A QR Code for each profile will be outputted during setup. You can take a picture of it with the device you want to use from the wireguard app
-* The unbound config (pi-hole.conf) is pretty solid I think. Only thing you may want to change is some performance related variables like num-threads. Also note that enabling `auto-trust-anchor-file` prevented unbound service from starting regardless of forwarding or lack there of on my server. 
 * dnscrypt config (dnscrypt-proxy.toml) is set to use only dnscrypt servers with dnssec, no logging or filtering, and then annonymizes them. [See here for more details.](https://github.com/DNSCrypt/dnscrypt-proxy/wiki/Anonymized-DNS) Note that I was able to wildcard it because the anon relays either didn't have a corresponding public server at the time of writing this or do filtering of some kind and so their servers aren't used (such as cryptostorm). This was a big plus for me because dnscrypt automatically sorts and picks the one with the lowest latency. Feel free to enable DOH or customize these however you want. DOH will require some extra setup though
 * I have ipv6 enabled
 
